@@ -1,32 +1,32 @@
-/*
-    =================
-    DECLARE VARIABLES
-    =================
-*/
-
+require('dotenv').config();
 const mongo = require('mongodb').MongoClient
-const url = 'mongodb+srv://admin:admin@cluster0-67h4m.mongodb.net/test?retryWrites=true&w=majority'
 const { promisify } = require('util');
 ObjectID = require('mongodb').ObjectID
 let repoMongo = {}
-let colltest
+let myDB = null
 
-/*
-    =========
-    FUNCTIONS
-    =========
-*/
+// Connect to MongoDB & get database
+function connectMongoDB() {
+    if (myDB) {
+        return Promise.resolve(myDB)
+    }
 
-// Connect to MongoDB & get database with name "TWMOMO"
-repoMongo.connectMongoDB = async () => {
-    await mongo.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then((client) => {
-        let myDB = client.db('TWMOMO')
-        collectionUsers = myDB.collection('test')
-        console.log("MongoDB connected")
-    })
-    .catch((err) => {
-        console.log(err)
+    return mongo.connect(process.env.MONGODB_CONN_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+            .then((client) => {
+                myDB = client.db(process.env.MONGODB_DB_NAME)
+                return myDB
+            })
+}
+
+// Test
+repoMongo.insertTest = (variable) => {
+    return connectMongoDB()
+    .then((db) => {
+        colltest = db.collection(process.env.MONGODB_COL_TEST)
+        getAsync = promisify(colltest.insertOne).bind(colltest)
+        return getAsync({hello: variable}).then((res) => {
+            return res
+        })
     })
 }
 

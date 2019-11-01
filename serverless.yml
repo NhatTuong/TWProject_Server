@@ -3,6 +3,7 @@ service: TWProject-Server
 provider:
   name: aws
   runtime: nodejs10.x
+  memorySize: 512 # Maxixmum size, type Megabytes
   stage: dev
   region: us-east-1
 
@@ -11,22 +12,11 @@ functions:
     handler: index.handler
     events:
       - http:
-          path: /
+          path: /register
           method: get
-          cors: true
-            # origins: 
-            #   - http://localhost:8081
-            #   - http://localhost:190002
+      - http:
+          path: /{proxy+}
+          method: get
 
-      # - http:
-      #     path: pokemon/{id}
-      #     method: get
-      # - http:
-      #     path: pokemon
-      #     method: post
-      # - http:
-      #     path: pokemon/{id}
-      #     method: put
-      # - http:
-      #     path: pokemon/{id}
-      #     method: delete
+plugins:
+  - serverless-prune-plugin

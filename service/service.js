@@ -1,21 +1,16 @@
-/*
-    =================
-    DECLARE VARIABLES
-    =================
-*/
-
+require('dotenv').config();
 let repoMongo = require('../repository/repoMongo');
+let repoMySQL = require('../repository/repoMySQL');
 let service = {}
 
-/*
-    =========
-    FUNCTIONS
-    =========
-*/
+// Test
+service.inserttest = async () => {
+    return await repoMongo.insertTest('hello world')
+}
 
-// Connect to repository of MongoDB
-service.connectMongoDB = async () => {
-    await repoMongo.connectMongoDB()
+// Test
+service.selecttestMySQL = async (res) => {
+    return await repoMySQL.selectTest(res)
 }
 
 
