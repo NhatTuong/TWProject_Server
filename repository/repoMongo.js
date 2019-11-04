@@ -19,7 +19,7 @@ function connectMongoDB() {
 }
 
 // Test
-repoMongo.insertTest = (variable) => {
+repoMongo.insertTest = async (variable) => {
     return connectMongoDB()
     .then((db) => {
         colltest = db.collection(process.env.MONGODB_COL_TEST)

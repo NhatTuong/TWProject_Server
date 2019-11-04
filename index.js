@@ -45,18 +45,70 @@ let service = require('./service/service');
     ----------------------------------
 */
 
-// Register new account
-// Req: JSON List (username, password, email, phoneNumber)
-// Res: Success or Fail
-app.options('/register', cors())
-app.get('/register', cors(corsOptions), (req, res) => {
-    res.status(process.env.SC_OK).send(JSON.parse('{"okMsg": "Hello World"}'))
+// Login
+// Parameter: JSON List (username, password)
+// Result: Success | Fail
+app.options('/login', cors())
+app.post('/login', cors(corsOptions), async (req, res) => {
+    username = req.body.username
+    password = req.body.password
+
+    loginResult = await service.checkLogin(username, password)
+    if (loginResult) {
+        res.send(service.encapResponse(process.env.SC_OK, "Login successfully", '{"token": "' + loginResult + '"}'))
+    }   
+    else {
+        res.send(service.encapResponse(process.env.SC_ERR_LOGIN_FAIL, "Login fail by wrong information", null))
+    }
 })
 
-app.get('/*', async (req, res) => {
-    // await service.inserttest()
-    val = await service.selecttestMySQL(res)
-    res.send(val)
+// Register new account
+// Parameter: JSON List (username, password)
+// Result: Success | Fail
+app.options('/register', cors())
+app.post('/register', cors(corsOptions), async (req, res) => {
+    username = req.body.username
+    password = req.body.password
+    
+    if (await service.existedUsername(username)) {
+        res.send(service.encapResponse(process.env.SC_ERR_REG_EXISTED_USERNAME, "Register new account fail by existed username", null))
+        return
+    }
+
+    await service.addNewAccount(username, password)
+    res.send(service.encapResponse(process.env.SC_OK, "Register new account successfully", null))
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Check client access to inexisted url
+// Result: Always Fail
+app.get('/test', (req, res) => {
+    res.send(service.encapResponse(process.env.SC_ERR_WRONG_URL, "This URL doesn't exist, so nothing to show here", null))
 })
 
 module.exports.handler = serverless(app)

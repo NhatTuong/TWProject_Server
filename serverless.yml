@@ -3,7 +3,7 @@ service: TWProject-Server
 provider:
   name: aws
   runtime: nodejs10.x
-  memorySize: 512 # Maxixmum size, type Megabytes
+  memorySize: 2048 # Maxixmum size, type Megabytes
   stage: dev
   region: us-east-1
 
@@ -12,8 +12,11 @@ functions:
     handler: index.handler
     events:
       - http:
+          path: /login
+          method: post
+      - http:
           path: /register
-          method: get
+          method: post
       - http:
           path: /{proxy+}
           method: get

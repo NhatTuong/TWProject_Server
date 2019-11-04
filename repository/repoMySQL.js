@@ -14,13 +14,21 @@ const myDB = require('serverless-mysql')({
     }
 })
 
-// Test
-repoMySQL.selectTest = async (res) => {   
-    await myDB.query('CREATE TABLE IF NOT EXISTS test (id INT AUTO_INCREMENT PRIMARY KEY, name NVARCHAR(255))')
-    let result = await myDB.query('INSERT INTO test (name) VALUES ("Trần Kiến Quốc - Đẹp Trai :D")')
-    let result02 = await myDB.query('INSERT INTO test (name) VALUES ("Team TW-MoMo Blều Blều")')
+// Get user by username
+// Parameter: username
+// Result: UserInfo | Null
+repoMySQL.getUserByUsername = async (username) => {
+    userInfo = await myDB.query('SELECT * FROM usertable WHERE username=?', [username])
+    if (userInfo.length==0) return null
     await myDB.end()
-    res.send("DONE")
+    return userInfo[0]
+}
+
+// Add new account
+// Parameter: username, password
+repoMySQL.addNewAccount = async (username, password) => {
+    await myDB.query('INSERT INTO usertable(username, password) VALUES (?, ?)', [username, password])
+    await myDB.end()
 }
 
 module.exports = repoMySQL;
