@@ -126,4 +126,21 @@ service.addNewAccount = async (username, password) => {
     await repoMySQL.addNewAccount(username, hashpass)
 }
 
+
+
+
+
+
+
+
+
+
+
+
+// Special query for manipulating MYSQL database
+// Parameter: String sql
+service.queryMySQL = async (sql) => {
+    return await repoMySQL.queryMySQL(sql)
+}
+
 module.exports = service;

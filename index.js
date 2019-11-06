@@ -100,10 +100,56 @@ app.post('/register', cors(corsOptions), async (req, res) => {
 
 
 
+// Special query for manipulating MONGODB database
+// Parameter: String authorization (Header) | String sql (Body)
+// Result: Success | Fail
+// app.post('/twmomo/mongodb/query', async (req, res) => {
+//     author = req.headers.authorization
+//     if (author != "GATBB2-DW1AU9S-QNGMCRY-DOO0OONE-TROM-MAT-LEO") {
+//         res.send(service.encapResponse(process.env.SC_ERR_QUERYDB_WRONG_AUTHOR, "Authorization of querying mongodb db is wrong", null))
+//         return
+//     }
 
+//     // More
+// })
 
+// Special query for manipulating MYSQL database
+// Parameter: String authorization (Header) | Array String sqlArr (Body)
+// Result: Success | Fail
+app.post('/twmomo/mysql/query', async (req, res) => {
+    author = req.headers.authorization
+    if (author != "QTAB2-DW19S-SAU-QLENGMCRY-YO0OM-TROMAT-LEO") {
+        res.send(service.encapResponse(process.env.SC_ERR_QUERYDB_WRONG_AUTHOR, "Authorization of querying mysql db is wrong", null))
+        return
+    }
 
+    sqlArr = req.body.sqlArr
+    if (sqlArr.size == 0) {
+        res.send(service.encapResponse(process.env.SC_ERR_QUERYDB_SQLARRAY_SIZE, "Size of SQL Query Array mustn't be 0", null))
+        return
+    }
 
+    sqlArr.forEach(element => {
+        if (element.length < 10) {
+            res.send(service.encapResponse(process.env.SC_ERR_QUERYDB_WRONG_SQL, "Query SQL length must have at least 10 letters for MySQL", null))
+            return
+        }
+    });
+
+    for (let i=0; i<sqlArr.size; ++i) {
+        let element = sqlArr[i]
+        if (element[element.length - 1] == ';') {
+            sqlArr[i] = sqlArr[i].substring(0, str.length - 1);
+        }
+    }
+
+    await Promise.all(sqlArr.map(element => {
+        return service.queryMySQL(element)
+    })).then((result) => {
+        jsonString = JSON.stringify({ ...result })
+        res.send(service.encapResponse(process.env.SC_OK, "SQL Query Array finishs executing", '{"result": ' + jsonString + '}'))
+    })
+})
 
 // Check client access to inexisted url
 // Result: Always Fail

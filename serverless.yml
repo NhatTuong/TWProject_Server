@@ -18,6 +18,9 @@ functions:
           path: /register
           method: post
       - http:
+          path: /twmomo/mysql/query
+          method: post
+      - http:
           path: /{proxy+}
           method: get
 

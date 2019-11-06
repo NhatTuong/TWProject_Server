@@ -31,4 +31,18 @@ repoMySQL.addNewAccount = async (username, password) => {
     await myDB.end()
 }
 
+
+
+
+
+
+
+
+// Special query for manipulating MYSQL database
+repoMySQL.queryMySQL = async (sql) => {
+    result = await myDB.query(sql)
+    await myDB.end()
+    return result
+}
+
 module.exports = repoMySQL;
