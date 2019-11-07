@@ -98,8 +98,6 @@ app.post('/register', cors(corsOptions), async (req, res) => {
 
 
 
-
-
 // Special query for manipulating MONGODB database
 // Parameter: String authorization (Header) | String sql (Body)
 // Result: Success | Fail
