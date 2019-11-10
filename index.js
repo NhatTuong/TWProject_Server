@@ -2,6 +2,8 @@
     ----------------------------------------------------------------
     SERVERLESS PRUNE PLUGIN -> DECREASE CODE STORAGE on LAMBDA AWS
     Link: https://github.com/claygregory/serverless-prune-plugin
+    Run command at Terminal VSCode: serverless config credentials -o --provider aws --key <keyID> --secret <secretKeyID>
+    Restful APIs: https://a8aeksd7j1.execute-api.us-east-2.amazonaws.com/dev/{+urlHere} (Write API into <urlHere>)
     ----------------------------------------------------------------
 */
 
@@ -151,7 +153,7 @@ app.post('/twmomo/mysql/query', async (req, res) => {
 
 // Check client access to inexisted url
 // Result: Always Fail
-app.get('/test', (req, res) => {
+app.get('/*', (req, res) => {
     res.send(service.encapResponse(process.env.SC_ERR_WRONG_URL, "This URL doesn't exist, so nothing to show here", null))
 })
 

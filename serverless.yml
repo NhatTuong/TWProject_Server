@@ -5,7 +5,7 @@ provider:
   runtime: nodejs10.x
   memorySize: 2048 # Maxixmum size, type Megabytes
   stage: dev
-  region: us-east-1
+  region: us-east-2
 
 functions:
   twmomoFunc:
