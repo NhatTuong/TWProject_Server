@@ -5,7 +5,7 @@ ObjectID = require('mongodb').ObjectID
 let repoMongo = {}
 let myDB = null
 
-// Connect to MongoDB & get database
+// Connecting to MongoDB & get database
 function connectMongoDB() {
     if (myDB) {
         return Promise.resolve(myDB)
@@ -18,14 +18,15 @@ function connectMongoDB() {
             })
 }
 
-// Test
-repoMongo.insertTest = async (variable) => {
+// Logging information of user
+// Parameter: String username, String datetime, String log
+repoMongo.writeLog = async (username, datetime, log) => {
     return connectMongoDB()
     .then((db) => {
-        colltest = db.collection(process.env.MONGODB_COL_TEST)
-        getAsync = promisify(colltest.insertOne).bind(colltest)
-        return getAsync({hello: variable}).then((res) => {
-            return res
+        appLogCol = db.collection(process.env.MONGODB_COL_APPLOG)
+        getAsync = promisify(colltest.insertOne).bind(appLogCol)
+        return getAsync({username: username, datetime: datetime, log: log}).then((res) => {
+            return true
         })
     })
 }

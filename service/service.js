@@ -17,7 +17,6 @@ service.encapResponse = (statusCode, resMsg, data) => {
     return JSON.parse('{"statusCode": ' + statusCode + ', "resMsg": "' + resMsg + '", "data": ' + data + '}')
 }
 
-
 /* --------------------------------------------------------------
                                 JWT 
    -------------------------------------------------------------- */
@@ -60,41 +59,20 @@ service.hashPassword = (rawPass) => {
     return bcrypt.hashSync(rawPass, salt);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* --------------------------------------------------------------
                         MONGODB FUNCTIONS
-            asd
    -------------------------------------------------------------- */
-// Test
-service.inserttest = async () => {
-    return await repoMongo.insertTest('hello world')
+// Logging information of user
+// Parameter: String username, String datetime, String log
+// Result: True
+service.writeLog = async (username, datetime, log) => {
+    return await repoMongo.writeLog(username, datetime, log)
 }
-
-
-
-
-
-
-
-
-
 
 /* --------------------------------------------------------------
                         MYSQL FUNCTIONS 
 -------------------------------------------------------------- */
-// Check info when user login
+// Checking info when user login
 // Parameter: String username, String password
 // Result: String token | False
 service.checkLogin = async (username, password) => {
@@ -110,7 +88,7 @@ service.checkLogin = async (username, password) => {
     return token
 }
 
-// Check existence of username
+// Checking existence of username
 // Parameter: String username
 // Result: True (Existed) | False (Inexistent)
 service.existedUsername = async (username) => {
@@ -119,7 +97,7 @@ service.existedUsername = async (username) => {
     return true
 }
 
-// Add new account to database
+// Adding new account to database
 // Parameter: String username, String password
 service.addNewAccount = async (username, password) => { 
     hashpass = service.hashPassword(password)

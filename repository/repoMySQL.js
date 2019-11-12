@@ -14,7 +14,7 @@ const myDB = require('serverless-mysql')({
     }
 })
 
-// Get user by username
+// Getting user by username
 // Parameter: username
 // Result: UserInfo | Null
 repoMySQL.getUserByUsername = async (username) => {
@@ -24,7 +24,7 @@ repoMySQL.getUserByUsername = async (username) => {
     return userInfo[0]
 }
 
-// Add new account
+// Adding new account
 // Parameter: username, password
 repoMySQL.addNewAccount = async (username, password) => {
     await myDB.query('INSERT INTO usertable(username, password) VALUES (?, ?)', [username, password])
@@ -39,6 +39,7 @@ repoMySQL.addNewAccount = async (username, password) => {
 
 
 // Special query for manipulating MYSQL database
+// Parameter: String sql (for querying)
 repoMySQL.queryMySQL = async (sql) => {
     result = await myDB.query(sql)
     await myDB.end()

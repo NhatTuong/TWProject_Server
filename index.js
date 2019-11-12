@@ -52,8 +52,8 @@ let service = require('./service/service');
 // Result: Success | Fail
 app.options('/login', cors())
 app.post('/login', cors(corsOptions), async (req, res) => {
-    username = req.body.username
-    password = req.body.password
+    let username = req.body.username
+    let password = req.body.password
 
     loginResult = await service.checkLogin(username, password)
     if (loginResult) {
@@ -64,29 +64,79 @@ app.post('/login', cors(corsOptions), async (req, res) => {
     }
 })
 
-// Register new account
+// Registering new account
 // Parameter: JSON List (username, password)
 // Result: Success | Fail
 app.options('/register', cors())
 app.post('/register', cors(corsOptions), async (req, res) => {
-    username = req.body.username
-    password = req.body.password
+    let username = req.body.username
+    let password = req.body.password
     
     if (await service.existedUsername(username)) {
-        res.send(service.encapResponse(process.env.SC_ERR_REG_EXISTED_USERNAME, "Register new account fail by existed username", null))
+        res.send(service.encapResponse(process.env.SC_ERR_REG_EXISTED_USERNAME, "Registering new account fail by existed username", null))
         return
     }
 
     await service.addNewAccount(username, password)
-    res.send(service.encapResponse(process.env.SC_OK, "Register new account successfully", null))
+    res.send(service.encapResponse(process.env.SC_OK, "Registering new account successfully", null))
 })
 
+// Filling in detail information after registering
+// Parameter: ?
+// Result: Success | Fail
+app.options('/register/detail', cors())
+app.post('/register/detail', cors(corsOptions), async (req, res) => {
 
 
 
 
+})
+
+// Logging information of user (Don't verify JWT)
+// Parameter: JSON List (username, datetime, log)
+// Result: Success
+app.options('/logging', cors())
+app.post('/logging', cors(corsOptions), async (req, res) => {
+    let username = req.body.username
+    let datetime = req.body.datetime
+    let log = req.body.log
+    
+    await service.writeLog(username, datetime, log)
+    res.send(service.encapResponse(process.env.SC_OK, "Writing log successfully", null))
+})
+
+// Storing data of category concern of user
+// Parameter: ?
+// Result: Success | Fail
+app.options('/concern/category', cors())
+app.post('/concern/category', cors(corsOptions), async (req, res) => {
+    
 
 
+
+})
+
+// Rating store
+// Parameter: ?
+// Result: Success | Fail
+app.options('/store/rating', cors())
+app.post('/store/rating', cors(corsOptions), async (req, res) => {
+    
+
+
+
+})
+
+// Reviewing store by comment
+// Parameter: ?
+// Result: Success | Fail
+app.options('/store/comment', cors())
+app.post('/store/comment', cors(corsOptions), async (req, res) => {
+    
+
+
+
+})
 
 
 
@@ -117,13 +167,13 @@ app.post('/register', cors(corsOptions), async (req, res) => {
 // Parameter: String authorization (Header) | Array String sqlArr (Body)
 // Result: Success | Fail
 app.post('/twmomo/mysql/query', async (req, res) => {
-    author = req.headers.authorization
+    let author = req.headers.authorization
     if (author != "QTAB2-DW19S-SAU-QLENGMCRY-YO0OM-TROMAT-LEO") {
         res.send(service.encapResponse(process.env.SC_ERR_QUERYDB_WRONG_AUTHOR, "Authorization of querying mysql db is wrong", null))
         return
     }
 
-    sqlArr = req.body.sqlArr
+    let sqlArr = req.body.sqlArr
     if (sqlArr.size == 0) {
         res.send(service.encapResponse(process.env.SC_ERR_QUERYDB_SQLARRAY_SIZE, "Size of SQL Query Array mustn't be 0", null))
         return
@@ -131,7 +181,7 @@ app.post('/twmomo/mysql/query', async (req, res) => {
 
     sqlArr.forEach(element => {
         if (element.length < 10) {
-            res.send(service.encapResponse(process.env.SC_ERR_QUERYDB_WRONG_SQL, "Query SQL length must have at least 10 letters for MySQL", null))
+            res.send(service.encapResponse(process.env.SC_ERR_QUERYDB_WRONG_SQL, "Querying SQL length must have at least 10 letters for MySQL", null))
             return
         }
     });
@@ -151,7 +201,7 @@ app.post('/twmomo/mysql/query', async (req, res) => {
     })
 })
 
-// Check client access to inexisted url
+// Checking client access to inexisted url
 // Result: Always Fail
 app.get('/*', (req, res) => {
     res.send(service.encapResponse(process.env.SC_ERR_WRONG_URL, "This URL doesn't exist, so nothing to show here", null))

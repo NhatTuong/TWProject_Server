@@ -18,6 +18,21 @@ functions:
           path: /register
           method: post
       - http:
+          path: /register/detail
+          method: post
+      - http:
+          path: /logging
+          method: post
+      - http:
+          path: /concern/category
+          method: post
+      - http:
+          path: /store/rating
+          method: post
+      - http:
+          path: /store/comment
+          method: post
+      - http:
           path: /twmomo/mysql/query
           method: post
       - http:
