@@ -39,6 +39,7 @@ var corsOptions = {
     }
 }
 
+let moment = require('moment');
 let service = require('./service/service');
 
 /*
@@ -48,7 +49,7 @@ let service = require('./service/service');
 */
 
 // Login
-// Parameter: JSON List (username, password)
+// Parameter: JSON List (String username, String password)
 // Result: Success | Fail
 app.options('/login', cors())
 app.post('/login', cors(corsOptions), async (req, res) => {
@@ -65,7 +66,7 @@ app.post('/login', cors(corsOptions), async (req, res) => {
 })
 
 // Registering new account
-// Parameter: JSON List (username, password)
+// Parameter: JSON List (String username, String password)
 // Result: Success | Fail
 app.options('/register', cors())
 app.post('/register', cors(corsOptions), async (req, res) => {
@@ -82,18 +83,30 @@ app.post('/register', cors(corsOptions), async (req, res) => {
 })
 
 // Filling in detail information after registering
-// Parameter: ?
+// Parameter: JSON List (String username, String name, String country, String city, Int age, String job, String gender, String salaryRange)
 // Result: Success | Fail
 app.options('/register/detail', cors())
 app.post('/register/detail', cors(corsOptions), async (req, res) => {
+    let username = req.body.username
+    let name = req.body.name
+    let country = req.body.country
+    let city = req.body.city
+    let age = req.body.age
+    let job = req.body.job
+    let gender = req.body.gender
+    let salaryRange = req.body.salaryRange
 
+    if (!(await service.existedUsername(username))) {
+        res.send(service.encapResponse(process.env.SC_ERR_REG_INEXISTED_USERNAME, "Username is inexisted, so register detail information fail", null))
+        return
+    }
 
-
-
+    await service.fillInDetailInfo(username, name, country, city, age, job, gender, salaryRange)
+    res.send(service.encapResponse(process.env.SC_OK, "Filling in detail information after registering successfully", null))
 })
 
 // Logging information of user (Don't verify JWT)
-// Parameter: JSON List (username, datetime, log)
+// Parameter: JSON List (String username, String datetime, String log)
 // Result: Success
 app.options('/logging', cors())
 app.post('/logging', cors(corsOptions), async (req, res) => {
@@ -114,29 +127,129 @@ app.post('/concern/category', cors(corsOptions), async (req, res) => {
 
 
 
+
+
+
+
+
+
+
 })
 
-// Rating store
-// Parameter: ?
+// Staring store
+// Parameter: String token, String storeID, Int stars
 // Result: Success | Fail
-app.options('/store/rating', cors())
-app.post('/store/rating', cors(corsOptions), async (req, res) => {
-    
+app.options('/store/review/stars', cors())
+app.post('/store/review/stars', cors(corsOptions), async (req, res) => {
+    let token = req.headers.authorization
 
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
 
+    let username = verifyToken.username
+    let storeID = req.body.storeID
+    let stars = req.body.stars
+    let current_time = new moment().format("DD/MM/YYYY HH:mm:ss");
 
+    if (await service.existedReview(username, storeID)) {
+        // Update existed review
+        await service.updateReviewStars(username, storeID, stars, current_time)
+    }
+    else {
+        // Insert new review
+        await service.addNewReview(username, storeID, stars, current_time, "", 0, 0, 0)
+    }
+
+    res.send(service.encapResponse(process.env.SC_OK, "Staring current store successfully", null))
 })
 
 // Reviewing store by comment
-// Parameter: ?
+// Parameter: String token, String storeID, String comment
 // Result: Success | Fail
-app.options('/store/comment', cors())
-app.post('/store/comment', cors(corsOptions), async (req, res) => {
-    
+app.options('/store/review/comment', cors())
+app.post('/store/review/comment', cors(corsOptions), async (req, res) => {
+    let token = req.headers.authorization
 
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
 
+    let username = verifyToken.username
+    let storeID = req.body.storeID
+    let comment = req.body.comment
+    let current_time = new moment().format("DD/MM/YYYY HH:mm:ss");
 
+    if (await service.existedReview(username, storeID)) {
+        // Update existed review
+        await service.updateReviewComment(username, storeID, comment, current_time)
+    }
+    else {
+        // Insert new review
+        await service.addNewReview(username, storeID, 0, current_time, comment, 0, 0, 0)
+    }
+
+    res.send(service.encapResponse(process.env.SC_OK, "Reviewing current store by comment successfully", null))
 })
+
+// Reacting to review of a specified user
+// Parameter: String token, String username, String storeID, Int reactType
+// Result: Success | Fail
+app.options('/store/review/reaction', cors())
+app.post('/store/review/reaction', cors(corsOptions), async (req, res) => {
+    let token = req.headers.authorization
+
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
+
+    let username = req.body.username
+    let storeID = req.body.storeID
+    let reactType = req.body.reactType
+
+    if (!await service.existedReview(username, storeID)) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_STOREID, "You can not review a inexisted store", null))
+        return
+    }
+
+    let result = service.updateReviewReaction(username, storeID, reactType)
+    if (!result) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_REACTION_TYPE, "Invalid reaction type", null))
+        return
+    }
+    
+    res.send(service.encapResponse(process.env.SC_OK, "Reacting to review of a specified user successfully", null))
+})
+
+// Getting all profile information 
+// Parameter: String token
+// Result: Success | Fail
+app.options('/profile', cors())
+app.get('/profile', cors(corsOptions), async (req, res) => {
+    let token = req.headers.authorization
+
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
+
+    let username = verifyToken.username
+    let data = await service.getProfileInfo(username)
+    res.send(service.encapResponse(process.env.SC_OK, "Get all profile information successfully", JSON.stringify(data)))
+})
+
+
+
+
+
+
 
 
 

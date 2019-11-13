@@ -55,7 +55,7 @@ service.comparePassword = (rawPass, hashPass) => {
 // Parameter: STRING raw password
 // Result: String hashed password
 service.hashPassword = (rawPass) => {
-    var salt = bcrypt.genSaltSync(10);
+    let salt = bcrypt.genSaltSync(10);
     return bcrypt.hashSync(rawPass, salt);
 }
 
@@ -77,14 +77,14 @@ service.writeLog = async (username, datetime, log) => {
 // Result: String token | False
 service.checkLogin = async (username, password) => {
 
-    userInfo = await repoMySQL.getUserByUsername(username)
+    let userInfo = await repoMySQL.getUserByUsername(username)
     if (userInfo == null) return false
 
-    resultComparison = service.comparePassword(password, userInfo.password)
+    let resultComparison = service.comparePassword(password, userInfo.password)
     if (!resultComparison) return false
 
-    jsonUsername = JSON.parse('{"username" : "' + username + '"}')
-    token = service.generateJWT(jsonUsername)
+    let jsonUsername = JSON.parse('{"username" : "' + username + '"}')
+    let token = service.generateJWT(jsonUsername)
     return token
 }
 
@@ -92,7 +92,7 @@ service.checkLogin = async (username, password) => {
 // Parameter: String username
 // Result: True (Existed) | False (Inexistent)
 service.existedUsername = async (username) => {
-    userInfo = await repoMySQL.getUserByUsername(username)
+    let userInfo = await repoMySQL.getProfileInfo(username)
     if (userInfo == null) return false
     return true
 }
@@ -100,9 +100,75 @@ service.existedUsername = async (username) => {
 // Adding new account to database
 // Parameter: String username, String password
 service.addNewAccount = async (username, password) => { 
-    hashpass = service.hashPassword(password)
+    let hashpass = service.hashPassword(password)
     await repoMySQL.addNewAccount(username, hashpass)
 }
+
+// Filling in detail information after registering
+// Parameter: String username, String name, String country, String city, Int age, String job, String gender, String salaryRange
+service.fillInDetailInfo = async (username, name, country, city, age, job, gender, salaryRange) => {
+    await repoMySQL.fillInDetailInfo(username, name, country, city, age, job, gender, salaryRange)
+}
+
+// Getting all profile information 
+// Parameter: String username
+// Result: All information of user, except password
+service.getProfileInfo = async (username) => {
+    return await repoMySQL.getProfileInfo(username)
+}
+
+// Checking existence of a review of that user and storeID
+// Parameter: String username, String storeID
+// Result: True (Existed) | False (Inexistent)
+service.existedReview = async (username, storeID) => {
+    let result = await repoMySQL.getReviewByUsernameAndStoreID(username, storeID)
+    if (result == null) return false
+    return true
+}
+
+// Insert new review
+// Parameter: String username, String storeID, Int stars, String datetime, String comment, Int useful, Int funny, Int cool
+service.addNewReview = async (username, storeID, stars, datetime, comment, useful, funny, cool) => {
+    await repoMySQL.addNewReview(username, storeID, stars, datetime, comment, useful, funny, cool)
+}
+
+// Update stars of review
+// Parameter: String username, String storeID, Int stars, String datetime
+service.updateReviewStars = async (username, storeID, stars, datetime) => {
+    await repoMySQL.updateReviewStars(username, storeID, stars, datetime)
+}
+
+// Update comment of review
+// Parameter: String username, String storeID, String comment, String datetime
+service.updateReviewComment = async (username, storeID, comment, datetime) => {
+    await repoMySQL.updateReviewComment(username, storeID, comment, datetime)
+}
+
+// Update reaction (useful or funny or cool) of review
+// Parameter: String username, String storeID, Int reactType
+// Result: Success (True) | Fail (False)
+service.updateReviewReaction = async (username, storeID, reactType) => {
+    if (reactType < 0 || reactType > 2) {
+        return false
+    }
+
+    let result = await repoMySQL.updateReviewReaction(username, storeID, reactType)
+    return result
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

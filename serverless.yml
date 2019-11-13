@@ -27,11 +27,17 @@ functions:
           path: /concern/category
           method: post
       - http:
-          path: /store/rating
+          path: /store/review/stars
           method: post
       - http:
-          path: /store/comment
+          path: /store/review/comment
           method: post
+      - http:
+          path: /store/review/reaction
+          method: post
+      - http:
+          path: /profile
+          method: get
       - http:
           path: /twmomo/mysql/query
           method: post
