@@ -77,7 +77,7 @@ service.writeLog = async (username, datetime, log) => {
 // Result: String token | False
 service.checkLogin = async (username, password) => {
 
-    let userInfo = await repoMySQL.getUserByUsername(username)
+    let userInfo = await repoMySQL.getProfileInfo(username)
     if (userInfo == null) return false
 
     let resultComparison = service.comparePassword(password, userInfo.password)
@@ -114,7 +114,9 @@ service.fillInDetailInfo = async (username, name, country, city, age, job, gende
 // Parameter: String username
 // Result: All information of user, except password
 service.getProfileInfo = async (username) => {
-    return await repoMySQL.getProfileInfo(username)
+    let result = await repoMySQL.getProfileInfo(username)
+    delete result.password
+    return result
 }
 
 // Checking existence of a review of that user and storeID

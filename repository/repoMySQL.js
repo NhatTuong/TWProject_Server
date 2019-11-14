@@ -32,7 +32,7 @@ repoMySQL.fillInDetailInfo = async (username, name, country, city, age, job, gen
 // Parameter: String username
 // Result: All information of user, except password
 repoMySQL.getProfileInfo = async (username) => {
-    let result = await myDB.query('SELECT username, name, country, city, age, job, gender, salary_range, review_count FROM user WHERE username = ?', [username])
+    let result = await myDB.query('SELECT * FROM user WHERE username = ?', [username])
     await myDB.end()
     if (result.length==0) return null
     return result[0]
