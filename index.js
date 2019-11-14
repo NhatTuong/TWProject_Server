@@ -214,11 +214,11 @@ app.post('/store/review/reaction', cors(corsOptions), async (req, res) => {
     let reactType = req.body.reactType
 
     if (!await service.existedReview(username, storeID)) {
-        res.send(service.encapResponse(process.env.SC_ERR_INVALID_STOREID, "You can not review a inexisted store", null))
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_STOREID, "You can not react to a inexisted review and store", null))
         return
     }
 
-    let result = service.updateReviewReaction(username, storeID, reactType)
+    let result = await service.updateReviewReaction(username, storeID, reactType)
     if (!result) {
         res.send(service.encapResponse(process.env.SC_ERR_INVALID_REACTION_TYPE, "Invalid reaction type", null))
         return
