@@ -34,7 +34,7 @@ repoMySQL.fillInDetailInfo = async (username, name, country, city, age, job, gen
 repoMySQL.getProfileInfo = async (username) => {
     let result = await myDB.query('SELECT * FROM user WHERE username = ?', [username])
     await myDB.end()
-    if (result.length==0) return null
+    if (result.length == 0) return null
     return result[0]
 }
 

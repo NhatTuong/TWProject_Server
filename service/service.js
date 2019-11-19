@@ -115,7 +115,7 @@ service.fillInDetailInfo = async (username, name, country, city, age, job, gende
 // Result: All information of user, except password
 service.getProfileInfo = async (username) => {
     let result = await repoMySQL.getProfileInfo(username)
-    delete result.password
+    if (result != null) delete result.password
     return result
 }
 

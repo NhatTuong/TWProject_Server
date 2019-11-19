@@ -51,8 +51,9 @@ let service = require('./service/service');
 // Login
 // Parameter: JSON List (String username, String password)
 // Result: Success | Fail
-app.options('/login', cors())
-app.post('/login', cors(corsOptions), async (req, res) => {
+// app.options('/login', cors())
+// cors(corsOptions),
+app.post('/login',  async (req, res) => {
     let username = req.body.username
     let password = req.body.password
 
@@ -68,8 +69,9 @@ app.post('/login', cors(corsOptions), async (req, res) => {
 // Registering new account
 // Parameter: JSON List (String username, String password)
 // Result: Success | Fail
-app.options('/register', cors())
-app.post('/register', cors(corsOptions), async (req, res) => {
+// app.options('/register', cors())
+// cors(corsOptions),
+app.post('/register', async (req, res) => {
     let username = req.body.username
     let password = req.body.password
     
@@ -85,8 +87,9 @@ app.post('/register', cors(corsOptions), async (req, res) => {
 // Filling in detail information after registering
 // Parameter: JSON List (String username, String name, String country, String city, Int age, String job, String gender, String salaryRange)
 // Result: Success | Fail
-app.options('/register/detail', cors())
-app.post('/register/detail', cors(corsOptions), async (req, res) => {
+// app.options('/register/detail', cors())
+// cors(corsOptions),
+app.post('/register/detail', async (req, res) => {
     let username = req.body.username
     let name = req.body.name
     let country = req.body.country
@@ -97,7 +100,7 @@ app.post('/register/detail', cors(corsOptions), async (req, res) => {
     let salaryRange = req.body.salaryRange
 
     if (!(await service.existedUsername(username))) {
-        res.send(service.encapResponse(process.env.SC_ERR_REG_INEXISTED_USERNAME, "Username is inexisted, so register detail information fail", null))
+        res.send(service.encapResponse(process.env.SC_ERR_INEXISTED_USERNAME, "Username is inexisted, so register detail information fail", null))
         return
     }
 
@@ -108,8 +111,9 @@ app.post('/register/detail', cors(corsOptions), async (req, res) => {
 // Logging information of user (Don't verify JWT)
 // Parameter: JSON List (String username, String datetime, String log)
 // Result: Success
-app.options('/logging', cors())
-app.post('/logging', cors(corsOptions), async (req, res) => {
+// app.options('/logging', cors())
+// cors(corsOptions),
+app.post('/logging', async (req, res) => {
     let username = req.body.username
     let datetime = req.body.datetime
     let log = req.body.log
@@ -121,8 +125,9 @@ app.post('/logging', cors(corsOptions), async (req, res) => {
 // Storing data of category concern of user
 // Parameter: ?
 // Result: Success | Fail
-app.options('/concern/category', cors())
-app.post('/concern/category', cors(corsOptions), async (req, res) => {
+// app.options('/concern/category', cors())
+// cors(corsOptions),
+app.post('/concern/category', async (req, res) => {
     
 
 
@@ -139,8 +144,9 @@ app.post('/concern/category', cors(corsOptions), async (req, res) => {
 // Staring store
 // Parameter: String token, String storeID, Int stars
 // Result: Success | Fail
-app.options('/store/review/stars', cors())
-app.post('/store/review/stars', cors(corsOptions), async (req, res) => {
+// app.options('/store/review/stars', cors())
+// cors(corsOptions),
+app.post('/store/review/stars', async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -169,8 +175,9 @@ app.post('/store/review/stars', cors(corsOptions), async (req, res) => {
 // Reviewing store by comment
 // Parameter: String token, String storeID, String comment
 // Result: Success | Fail
-app.options('/store/review/comment', cors())
-app.post('/store/review/comment', cors(corsOptions), async (req, res) => {
+// app.options('/store/review/comment', cors())
+// cors(corsOptions),
+app.post('/store/review/comment', async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -199,8 +206,9 @@ app.post('/store/review/comment', cors(corsOptions), async (req, res) => {
 // Reacting to review of a specified user
 // Parameter: String token, String username, String storeID, Int reactType
 // Result: Success | Fail
-app.options('/store/review/reaction', cors())
-app.post('/store/review/reaction', cors(corsOptions), async (req, res) => {
+// app.options('/store/review/reaction', cors())
+// cors(corsOptions),
+app.post('/store/review/reaction', async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -230,8 +238,9 @@ app.post('/store/review/reaction', cors(corsOptions), async (req, res) => {
 // Getting all profile information 
 // Parameter: String token
 // Result: Success | Fail
-app.options('/profile', cors())
-app.get('/profile', cors(corsOptions), async (req, res) => {
+// app.options('/profile', cors())
+// cors(corsOptions),
+app.get('/profile', async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -242,6 +251,11 @@ app.get('/profile', cors(corsOptions), async (req, res) => {
 
     let username = verifyToken.username
     let data = await service.getProfileInfo(username)
+    if (data == null) {
+        res.send(service.encapResponse(process.env.SC_ERR_INEXISTED_USERNAME, "Username is inexisted, so get profile info fail", null))
+        return
+    }
+
     res.send(service.encapResponse(process.env.SC_OK, "Get all profile information successfully", JSON.stringify(data)))
 })
 
