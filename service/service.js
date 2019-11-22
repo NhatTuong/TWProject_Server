@@ -90,7 +90,7 @@ service.checkLogin = async (username, password) => {
 
 // Checking existence of username
 // Parameter: String username
-// Result: True (Existed) | False (Inexistent)
+// Result: True (Existent) | False (Inexistent)
 service.existedUsername = async (username) => {
     let userInfo = await repoMySQL.getProfileInfo(username)
     if (userInfo == null) return false
@@ -121,7 +121,7 @@ service.getProfileInfo = async (username) => {
 
 // Checking existence of a review of that user and storeID
 // Parameter: String username, String storeID
-// Result: True (Existed) | False (Inexistent)
+// Result: True (Existent) | False (Inexistent)
 service.existedReview = async (username, storeID) => {
     let result = await repoMySQL.getReviewByUsernameAndStoreID(username, storeID)
     if (result == null) return false
@@ -132,18 +132,6 @@ service.existedReview = async (username, storeID) => {
 // Parameter: String username, String storeID, Int stars, String datetime, String comment, Int useful, Int funny, Int cool
 service.addNewReview = async (username, storeID, stars, datetime, comment, useful, funny, cool) => {
     await repoMySQL.addNewReview(username, storeID, stars, datetime, comment, useful, funny, cool)
-}
-
-// Update stars of review
-// Parameter: String username, String storeID, Int stars, String datetime
-service.updateReviewStars = async (username, storeID, stars, datetime) => {
-    await repoMySQL.updateReviewStars(username, storeID, stars, datetime)
-}
-
-// Update comment of review
-// Parameter: String username, String storeID, String comment, String datetime
-service.updateReviewComment = async (username, storeID, comment, datetime) => {
-    await repoMySQL.updateReviewComment(username, storeID, comment, datetime)
 }
 
 // Update reaction (useful or funny or cool) of review
@@ -158,17 +146,54 @@ service.updateReviewReaction = async (username, storeID, reactType) => {
     return result
 }
 
+// Get raw concern list
+// Result: JSON Array (Each JSON Object will have two keys: concern_id, label) | Null (DB doesn't have concern list)
+service.getRawConcernList = async () => {
+    return await repoMySQL.getRawConcernList()
+}
 
+// Get my concern list
+// Parameter: String username
+// Result: JSON Array (Each JSON Object will have two keys: concern_id, label) | Null (I don't have concern list now)
+service.getMyConcernList = async (username) => {
+    return await repoMySQL.getMyConcernList(username)
+}
 
+// Update my concern list
+// Parameter: String username, Array (String) concernID
+service.updateMyConcernList = async (username, concernIDList) => {
+    await repoMySQL.deleteMyConcernList(username)
 
+    for (let i = 0; i < concernIDList.length; ++i) {
+        await repoMySQL.addMyNewConcern(username, concernIDList[i])
+    }
+}
 
+// Exist my favorite store or not
+// Parameter: String username, String storeID
+// Result: True (Existent) | False (Inexistent)
+service.existedMyFavStore = async (username, storeID) => {
+    return await repoMySQL.existedMyFavStore(username, storeID)
+}
 
+// Add new store to my favorite store list
+// Parameter: String username, String storeID
+service.addMyNewFavStore = async (username, storeID) => {
+    await repoMySQL.addMyNewFavStore(username, storeID)
+}
 
+// Removing store from my favorite store list
+// Parameter: String username, String storeID
+service.removeMyFavStore = async (username, storeID) => {
+    await repoMySQL.removeMyFavStore(username, storeID)
+}
 
-
-
-
-
+// Get my favorite store list
+// Parameter: String username
+// Result: JSON Array (Each JSON Object will have lots of keys: store_id, service_id,...) | Null (I don't have favorite store list now)
+service.getMyFavStoreList = async (username) => {
+    return await repoMySQL.getMyFavStoreList(username)
+}
 
 
 

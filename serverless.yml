@@ -24,19 +24,31 @@ functions:
           path: /logging
           method: post
       - http:
-          path: /concern/category
+          path: /concern/rawlist
+          method: get
+      - http:
+          path: /concern/mylist
+          method: get
+      - http:
+          path: /concern/mylist
           method: post
       - http:
-          path: /store/review/stars
-          method: post
-      - http:
-          path: /store/review/comment
+          path: /store/review/rating
           method: post
       - http:
           path: /store/review/reaction
           method: post
       - http:
           path: /profile
+          method: get
+      - http:
+          path: /store/favorite
+          method: post
+      - http:
+          path: /store/favorite
+          method: delete
+      - http:
+          path: /store/favorite
           method: get
       - http:
           path: /twmomo/mysql/query

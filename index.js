@@ -50,7 +50,6 @@ let service = require('./service/service');
 
 // Login
 // Parameter: JSON List (String username, String password)
-// Result: Success | Fail
 // app.options('/login', cors())
 // cors(corsOptions),
 app.post('/login',  async (req, res) => {
@@ -68,7 +67,6 @@ app.post('/login',  async (req, res) => {
 
 // Registering new account
 // Parameter: JSON List (String username, String password)
-// Result: Success | Fail
 // app.options('/register', cors())
 // cors(corsOptions),
 app.post('/register', async (req, res) => {
@@ -86,7 +84,6 @@ app.post('/register', async (req, res) => {
 
 // Filling in detail information after registering
 // Parameter: JSON List (String username, String name, String country, String city, Int age, String job, String gender, String salaryRange)
-// Result: Success | Fail
 // app.options('/register/detail', cors())
 // cors(corsOptions),
 app.post('/register/detail', async (req, res) => {
@@ -110,7 +107,6 @@ app.post('/register/detail', async (req, res) => {
 
 // Logging information of user (Don't verify JWT)
 // Parameter: JSON List (String username, String datetime, String log)
-// Result: Success
 // app.options('/logging', cors())
 // cors(corsOptions),
 app.post('/logging', async (req, res) => {
@@ -122,31 +118,33 @@ app.post('/logging', async (req, res) => {
     res.send(service.encapResponse(process.env.SC_OK, "Writing log successfully", null))
 })
 
-// Storing data of category concern of user
-// Parameter: ?
-// Result: Success | Fail
-// app.options('/concern/category', cors())
+// Get raw concern list
+// Parameter: String token
+// app.options('/concern/rawlist', cors())
 // cors(corsOptions),
-app.post('/concern/category', async (req, res) => {
-    
+app.get('/concern/rawlist', async (req, res) => {
+    let token = req.headers.authorization
 
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
 
+    data = await service.getRawConcernList()
+    if (data == null) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_RAW_CONCERN_LIST, "Raw concern list is empty", null))
+        return
+    }
 
-
-
-
-
-
-
-
+    res.send(service.encapResponse(process.env.SC_OK, "Getting raw concern list successfully", JSON.stringify(data)))
 })
 
-// Staring store
-// Parameter: String token, String storeID, Int stars
-// Result: Success | Fail
-// app.options('/store/review/stars', cors())
+// Get my concern list
+// Parameter: String token
+// app.options('/concern/mylist', cors())
 // cors(corsOptions),
-app.post('/store/review/stars', async (req, res) => {
+app.get('/concern/mylist', async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -156,28 +154,41 @@ app.post('/store/review/stars', async (req, res) => {
     }
 
     let username = verifyToken.username
-    let storeID = req.body.storeID
-    let stars = req.body.stars
-    let current_time = new moment().format("DD/MM/YYYY HH:mm:ss");
 
-    if (await service.existedReview(username, storeID)) {
-        // Update existed review
-        await service.updateReviewStars(username, storeID, stars, current_time)
-    }
-    else {
-        // Insert new review
-        await service.addNewReview(username, storeID, stars, current_time, "", 0, 0, 0)
+    data = await service.getMyConcernList(username)
+    if (data == null) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_MY_CONCERN_LIST, "My concern list is empty", null))
+        return
     }
 
-    res.send(service.encapResponse(process.env.SC_OK, "Staring current store successfully", null))
+    res.send(service.encapResponse(process.env.SC_OK, "Getting my concern list successfully", JSON.stringify(data)))
 })
 
-// Reviewing store by comment
-// Parameter: String token, String storeID, String comment
-// Result: Success | Fail
-// app.options('/store/review/comment', cors())
+// Update my concern list
+// Parameter: String token, Array (String) concernID
+// app.options('/concern/mylist', cors())
 // cors(corsOptions),
-app.post('/store/review/comment', async (req, res) => {
+app.post('/concern/mylist', async (req, res) => {
+    let token = req.headers.authorization
+
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
+
+    let username = verifyToken.username
+    let concernIDList = req.body.concernIDList
+
+    await service.updateMyConcernList(username, concernIDList)
+    res.send(service.encapResponse(process.env.SC_OK, "Updating my concern list successfully", null))
+})
+
+// Review store
+// Parameter: String token, String storeID, String comment, Int stars
+// app.options('/store/review/rating', cors())
+// cors(corsOptions),
+app.post('/store/review/rating', async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -189,23 +200,20 @@ app.post('/store/review/comment', async (req, res) => {
     let username = verifyToken.username
     let storeID = req.body.storeID
     let comment = req.body.comment
-    let current_time = new moment().format("DD/MM/YYYY HH:mm:ss");
+    let stars = req.body.stars
+    let current_time = new moment().format("YYYY/MM/DD HH:mm:ss");
 
     if (await service.existedReview(username, storeID)) {
-        // Update existed review
-        await service.updateReviewComment(username, storeID, comment, current_time)
+        res.send(service.encapResponse(process.env.SC_ERR_EXISTED_REVIEW, "You've reviewed this store before, so you couldn't review again", null))
+        return
     }
-    else {
-        // Insert new review
-        await service.addNewReview(username, storeID, 0, current_time, comment, 0, 0, 0)
-    }
-
-    res.send(service.encapResponse(process.env.SC_OK, "Reviewing current store by comment successfully", null))
+    
+    await service.addNewReview(username, storeID, stars, current_time, comment, 0, 0, 0)
+    res.send(service.encapResponse(process.env.SC_OK, "Reviewing this store successfully", null))
 })
 
 // Reacting to review of a specified user
 // Parameter: String token, String username, String storeID, Int reactType
-// Result: Success | Fail
 // app.options('/store/review/reaction', cors())
 // cors(corsOptions),
 app.post('/store/review/reaction', async (req, res) => {
@@ -222,7 +230,7 @@ app.post('/store/review/reaction', async (req, res) => {
     let reactType = req.body.reactType
 
     if (!await service.existedReview(username, storeID)) {
-        res.send(service.encapResponse(process.env.SC_ERR_INVALID_STOREID, "You can not react to a inexisted review and store", null))
+        res.send(service.encapResponse(process.env.SC_ERR_INEXISTED_REVIEW, "You can not react to an inexisted review for this store", null))
         return
     }
 
@@ -237,7 +245,6 @@ app.post('/store/review/reaction', async (req, res) => {
 
 // Getting all profile information 
 // Parameter: String token
-// Result: Success | Fail
 // app.options('/profile', cors())
 // cors(corsOptions),
 app.get('/profile', async (req, res) => {
@@ -259,6 +266,81 @@ app.get('/profile', async (req, res) => {
     res.send(service.encapResponse(process.env.SC_OK, "Get all profile information successfully", JSON.stringify(data)))
 })
 
+// Add new store to my favorite store list
+// Parameter: String token, String storeID
+// app.options('/store/favorite', cors())
+// cors(corsOptions),
+app.post('/store/favorite', async (req, res) => {
+    let token = req.headers.authorization
+
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
+
+    let username = verifyToken.username
+    let storeID = req.body.storeID
+
+    if (service.existedMyFavStore(username, storeID)) {
+        res.send(service.encapResponse(process.env.SC_ERR_EXISTED_FAV_STORE, "This favorite store existed in your favorite store list, so cann't add to list anymore", null))
+        return
+    }
+
+    await service.addMyNewFavStore(username, storeID)
+    res.send(service.encapResponse(process.env.SC_OK, "Adding this store to my favorite store list successfully", null))
+})
+
+// Removing store from my favorite store list
+// Parameter: String token, String storeID
+// app.options('/store/favorite', cors())
+// cors(corsOptions),
+app.delete('/store/favorite', async (req, res) => {
+    let token = req.headers.authorization
+
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
+
+    let username = verifyToken.username
+    let storeID = req.body.storeID
+
+    await service.removeMyFavStore(username, storeID)
+    res.send(service.encapResponse(process.env.SC_OK, "Removing this store from favorite store list successfully", null))
+})
+
+// Get my favorite store list
+// Parameter: String token
+// app.options('/store/favorite', cors())
+// cors(corsOptions),
+app.get('/store/favorite', async (req, res) => {
+    let token = req.headers.authorization
+
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
+
+    let username = verifyToken.username
+
+    let data = await service.getMyFavStoreList(username)
+    if (data == null) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_MY_FAV_STORE_LIST, "My favorite store list is empty", null))
+        return
+    }
+    res.send(service.encapResponse(process.env.SC_OK, "Getting all information from favorite store list successfully", JSON.stringify(data)))
+})
+
+
+
+
+
+
+
+
 
 
 
@@ -279,7 +361,6 @@ app.get('/profile', async (req, res) => {
 
 // Special query for manipulating MONGODB database
 // Parameter: String authorization (Header) | String sql (Body)
-// Result: Success | Fail
 // app.post('/twmomo/mongodb/query', async (req, res) => {
 //     author = req.headers.authorization
 //     if (author != "GATBB2-DW1AU9S-QNGMCRY-DOO0OONE-TROM-MAT-LEO") {
@@ -292,7 +373,6 @@ app.get('/profile', async (req, res) => {
 
 // Special query for manipulating MYSQL database
 // Parameter: String authorization (Header) | Array String sqlArr (Body)
-// Result: Success | Fail
 app.post('/twmomo/mysql/query', async (req, res) => {
     let author = req.headers.authorization
     if (author != "QTAB2-DW19S-SAU-QLENGMCRY-YO0OM-TROMAT-LEO") {
@@ -329,7 +409,6 @@ app.post('/twmomo/mysql/query', async (req, res) => {
 })
 
 // Checking client access to inexisted url
-// Result: Always Fail
 app.get('/*', (req, res) => {
     res.send(service.encapResponse(process.env.SC_ERR_WRONG_URL, "This URL doesn't exist, so nothing to show here", null))
 })

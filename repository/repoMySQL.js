@@ -44,7 +44,7 @@ repoMySQL.getProfileInfo = async (username) => {
 repoMySQL.getReviewByUsernameAndStoreID = async (username, storeID) => {
     let review = await myDB.query('SELECT * FROM review WHERE username = ? AND store_id = ?', [username, storeID])
     await myDB.end()
-    if (review.length==0) return null
+    if (review.length == 0) return null
     return review[0]
 }
 
@@ -54,23 +54,10 @@ repoMySQL.addNewReview = async (username, storeID, stars, datetime, comment, use
     await myDB.transaction()
             .query('INSERT INTO review(username, store_id, stars, date, text, useful, funny, cool) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [username, storeID, stars, datetime, comment, useful, funny, cool])
             .query('UPDATE user SET review_count = review_count + 1 WHERE username = ?', [username])
-            .query('UPDATE store SET review_count = review_count + 1 WHERE store_id = ?', [storeID])
+            .query('SELECT * FROM store WHERE store_id = ? FOR UPDATE', [storeID])
+            .query('UPDATE store SET stars = (stars * review_count + ?)/(review_count + 1), review_count = review_count + 1 WHERE store_id = ?', [stars, storeID])
             .rollback()
             .commit()
-    await myDB.end()
-}
-
-// Update stars of review
-// Parameter: String username, String storeID, Int stars, String datetime
-repoMySQL.updateReviewStars = async (username, storeID, stars, datetime) => {
-    await myDB.query('UPDATE review SET stars = ?, date = ? WHERE username = ? AND store_id = ?', [stars, datetime, username, storeID])
-    await myDB.end()
-}
-
-// Update comment of review
-// Parameter: String username, String storeID, String comment, String datetime
-repoMySQL.updateReviewComment = async (username, storeID, comment, datetime) => {
-    await myDB.query('UPDATE review SET comment = ?, date = ? WHERE username = ? AND store_id = ?', [comment, datetime, username, storeID])
     await myDB.end()
 }
 
@@ -94,16 +81,95 @@ repoMySQL.updateReviewReaction = async (username, storeID, reactType) => {
 
     if (sql == null) return false
 
-    await myDB.query(sql, [username, storeID])
+    await myDB.transaction()
+            .query('SELECT * FROM review WHERE username = ? AND store_id = ? FOR UPDATE', [username, storeID])
+            .query(sql, [username, storeID])
+            .rollback()
+            .commit()
     await myDB.end()
+
     return true
 }
 
+// Get raw concern list
+// Result: JSON Array (Each JSON Object will have two keys: concern_id, label) | Null (DB doesn't have concern list)
+repoMySQL.getRawConcernList = async () => {
+    let result = await myDB.query('SELECT * FROM concern')
+    await myDB.end()
+    if (result.length == 0) return null
+    return result
+}
 
+// Get my concern list
+// Parameter: String username
+// Result: SON Array (Each JSON Object will have two keys: concern_id, label) | Null (I don't have concern list now)
+repoMySQL.getMyConcernList = async (username) => {
+    let result = await myDB.query('SELECT co.concern_id, co.label FROM user_concern AS usco INNER JOIN concern AS co ON usco.concern_id = co.concern_id WHERE usco.username = ?', [username])
+    await myDB.end()
+    if (result.length == 0) return null
+    return result
+}
 
+// Delete my concern list
+// Parameter: String username
+repoMySQL.deleteMyConcernList = async (username) => {
+    await myDB.transaction()
+            .query('SELECT * FROM user_concern WHERE username = ? FOR UPDATE', [username])
+            .query('DELETE FROM user_concern WHERE username = ?', [username])
+            .rollback()
+            .commit()
+    await myDB.end()
+}
 
+// Add my new concern
+// Parameter: String username, String concernID
+repoMySQL.addMyNewConcern = async (username, concernID) => {
+    await myDB.query('INSERT INTO user_concern(username, concern_id) VALUES (?, ?)', [username, concernID])
+    await myDB.end()
+}
 
+// Exist my favorite store or not
+// Parameter: String username, String storeID
+// Result: True (Existent) | False (Inexistent)
+repoMySQL.existedMyFavStore = async (username, storeID) => {
+    let result = await myDB.query('SELECT * FROM user_favorite WHERE username = ? AND store_id = ?', [username, storeID])
+    await myDB.end()
+    if (result.length == 0) return false
+    return true
+}
 
+// Add new store to my favorite store list
+// Parameter: String username, String storeID
+repoMySQL.addMyNewFavStore = async (username, storeID) => {
+    await myDB.query('INSERT INTO user_favorite(username, store_id) VALUES(?, ?)', [username, storeID])
+    await myDB.end()
+}
+
+// Removing store from my favorite store list
+// Parameter: String username, String storeID
+repoMySQL.removeMyFavStore = async (username, storeID) => {
+    await myDB.transaction()
+            .query('SELECT * FROM user_favorite WHERE username = ? AND store_id = ? FOR UPDATE', [username, storeID])
+            .query('DELETE FROM user_favorite WHERE username = ? AND store_id = ?', [username, storeID])
+            .rollback()
+            .commit()
+    await myDB.end()
+}
+
+// Get my favorite store list
+// Parameter: String username
+// Result: JSON Array (Each JSON Object will have lots of keys: store_id, service_id,...) | Null (I don't have favorite store list now)
+repoMySQL.getMyFavStoreList = async (username) => {
+    let result = await myDB.query( 'SELECT st.*, ho.hour, cate.category\
+                                    FROM\
+                                        user_favorite AS usfa INNER JOIN store AS st ON usfa.store_id = st.store_id\
+                                        INNER JOIN hour AS ho ON st.store_id = ho.store_id\
+                                        INNER JOIN category AS cate ON st.store_id = cate.store_id\
+                                    WHERE usfa.username = ?', [username])
+    await myDB.end()
+    if (result.length == 0) return null
+    return result
+}
 
 
 
