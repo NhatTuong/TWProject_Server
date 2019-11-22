@@ -24,6 +24,9 @@ functions:
           path: /logging
           method: post
       - http:
+          path: /profile
+          method: get
+      - http:
           path: /concern/rawlist
           method: get
       - http:
@@ -39,9 +42,6 @@ functions:
           path: /store/review/reaction
           method: post
       - http:
-          path: /profile
-          method: get
-      - http:
           path: /store/favorite
           method: post
       - http:
@@ -49,6 +49,21 @@ functions:
           method: delete
       - http:
           path: /store/favorite
+          method: get
+      - http:
+          path: /store
+          method: get
+      - http:
+          path: /store/favorite/check
+          method: get
+      - http:
+          path: /store/review
+          method: get
+      - http:
+          path: /store/photo
+          method: get
+      - http:
+          path: /store/food
           method: get
       - http:
           path: /twmomo/mysql/query

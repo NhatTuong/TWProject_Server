@@ -118,6 +118,29 @@ app.post('/logging', async (req, res) => {
     res.send(service.encapResponse(process.env.SC_OK, "Writing log successfully", null))
 })
 
+// Getting all profile information 
+// Parameter: String token
+// app.options('/profile', cors())
+// cors(corsOptions),
+app.get('/profile', async (req, res) => {
+    let token = req.headers.authorization
+
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
+
+    let username = verifyToken.username
+    let data = await service.getProfileInfo(username)
+    if (data == null) {
+        res.send(service.encapResponse(process.env.SC_ERR_INEXISTED_USERNAME, "Username is inexisted, so get profile info fail", null))
+        return
+    }
+
+    res.send(service.encapResponse(process.env.SC_OK, "Get all profile information successfully", JSON.stringify(data)))
+})
+
 // Get raw concern list
 // Parameter: String token
 // app.options('/concern/rawlist', cors())
@@ -243,29 +266,6 @@ app.post('/store/review/reaction', async (req, res) => {
     res.send(service.encapResponse(process.env.SC_OK, "Reacting to review of a specified user successfully", null))
 })
 
-// Getting all profile information 
-// Parameter: String token
-// app.options('/profile', cors())
-// cors(corsOptions),
-app.get('/profile', async (req, res) => {
-    let token = req.headers.authorization
-
-    let verifyToken = service.verifyJWT(token)
-    if (!verifyToken) {
-        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
-        return
-    }
-
-    let username = verifyToken.username
-    let data = await service.getProfileInfo(username)
-    if (data == null) {
-        res.send(service.encapResponse(process.env.SC_ERR_INEXISTED_USERNAME, "Username is inexisted, so get profile info fail", null))
-        return
-    }
-
-    res.send(service.encapResponse(process.env.SC_OK, "Get all profile information successfully", JSON.stringify(data)))
-})
-
 // Add new store to my favorite store list
 // Parameter: String token, String storeID
 // app.options('/store/favorite', cors())
@@ -334,13 +334,120 @@ app.get('/store/favorite', async (req, res) => {
     res.send(service.encapResponse(process.env.SC_OK, "Getting all information from favorite store list successfully", JSON.stringify(data)))
 })
 
+// Get all food item of a store
+// Parameter: String token, String storeID
+// app.options('/store/food', cors())
+// cors(corsOptions),
+app.get('/store/food', async (req, res) => {
+    let token = req.headers.authorization
 
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
 
+    let storeID = req.body.storeID
 
+    let data = await service.getFoodListOfStore(storeID)
+    if (data == null) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_FOOD_LIST, "Food list of this store is empty", null))
+        return
+    }
+    res.send(service.encapResponse(process.env.SC_OK, "Getting food information of this store successfully", JSON.stringify(data)))
 
+})
 
+// Get all photo of a store
+// Parameter: String token, String storeID
+// app.options('/store/photo', cors())
+// cors(corsOptions),
+app.get('/store/photo', async (req, res) => {
+    let token = req.headers.authorization
 
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
 
+    let storeID = req.body.storeID
+
+    let data = await service.getPhotoListOfStore(storeID)
+    if (data == null) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_PHOTO_LIST, "Photo list of this store is empty", null))
+        return
+    }
+    res.send(service.encapResponse(process.env.SC_OK, "Getting photo information of this store successfully", JSON.stringify(data)))
+
+})
+
+// Get all review of a store
+// Parameter: String token, String storeID
+// app.options('/store/review', cors())
+// cors(corsOptions),
+app.get('/store/review', async (req, res) => {
+    let token = req.headers.authorization
+
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
+
+    let storeID = req.body.storeID
+
+    let data = await service.getReviewListOfStore(storeID)
+    if (data == null) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_REVIEW_LIST, "Review list of this store is empty", null))
+        return
+    }
+    res.send(service.encapResponse(process.env.SC_OK, "Getting review information of this store successfully", JSON.stringify(data)))
+})
+
+// Get store info based on storeID
+// Parameter: String token, String storeID
+// app.options('/store', cors())
+// cors(corsOptions),
+app.get('/store', async (req, res) => {
+    let token = req.headers.authorization
+
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
+
+    let storeID = req.body.storeID
+
+    let data = await service.getStoreInfo(storeID)
+    if (data == null) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_STORE_INFO, "This store information is empty", null))
+        return
+    }
+    res.send(service.encapResponse(process.env.SC_OK, "Getting this store information successfully", JSON.stringify(data)))
+})
+
+// Checking this storeID is in my favorite list or not
+// Parameter: String token, String storeID
+// Result: "1" (True) | "0" (False)
+// app.options('/store/favorite/check', cors())
+// cors(corsOptions),
+app.get('/store/favorite/check', async (req, res) => {
+    let token = req.headers.authorization
+
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
+
+    let storeID = req.body.storeID
+    let username = verifyToken.username
+
+    let data = await service.isFavStoreID(username, storeID)
+    res.send(service.encapResponse(process.env.SC_OK, "Checking this store is my favorite or not successfully", JSON.stringify(data)))
+})
 
 
 

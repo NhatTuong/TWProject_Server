@@ -63,9 +63,8 @@ repoMySQL.addNewReview = async (username, storeID, stars, datetime, comment, use
 
 // Update reaction (useful or funny or cool) of review
 // Parameter: String username, String storeID, Int reactType
-// Result: Success (True) | Fail (False)
 repoMySQL.updateReviewReaction = async (username, storeID, reactType) => {
-    let sql = null
+    let sql = ""
 
     switch (reactType) {
         case 0: // Useful
@@ -79,16 +78,12 @@ repoMySQL.updateReviewReaction = async (username, storeID, reactType) => {
             break;
     }
 
-    if (sql == null) return false
-
     await myDB.transaction()
             .query('SELECT * FROM review WHERE username = ? AND store_id = ? FOR UPDATE', [username, storeID])
             .query(sql, [username, storeID])
             .rollback()
             .commit()
     await myDB.end()
-
-    return true
 }
 
 // Get raw concern list
@@ -104,7 +99,9 @@ repoMySQL.getRawConcernList = async () => {
 // Parameter: String username
 // Result: SON Array (Each JSON Object will have two keys: concern_id, label) | Null (I don't have concern list now)
 repoMySQL.getMyConcernList = async (username) => {
-    let result = await myDB.query('SELECT co.concern_id, co.label FROM user_concern AS usco INNER JOIN concern AS co ON usco.concern_id = co.concern_id WHERE usco.username = ?', [username])
+    let result = await myDB.query( 'SELECT co.concern_id, co.label \
+                                    FROM user_concern AS usco INNER JOIN concern AS co ON usco.concern_id = co.concern_id \
+                                    WHERE usco.username = ?', [username])
     await myDB.end()
     if (result.length == 0) return null
     return result
@@ -160,16 +157,74 @@ repoMySQL.removeMyFavStore = async (username, storeID) => {
 // Parameter: String username
 // Result: JSON Array (Each JSON Object will have lots of keys: store_id, service_id,...) | Null (I don't have favorite store list now)
 repoMySQL.getMyFavStoreList = async (username) => {
-    let result = await myDB.query( 'SELECT st.*, ho.hour, cate.category\
-                                    FROM\
-                                        user_favorite AS usfa INNER JOIN store AS st ON usfa.store_id = st.store_id\
-                                        INNER JOIN hour AS ho ON st.store_id = ho.store_id\
-                                        INNER JOIN category AS cate ON st.store_id = cate.store_id\
+    let result = await myDB.query( 'SELECT st.*, ho.hour, cate.category \
+                                    FROM \
+                                        user_favorite AS usfa INNER JOIN store AS st ON usfa.store_id = st.store_id \
+                                        INNER JOIN hour AS ho ON st.store_id = ho.store_id \
+                                        INNER JOIN category AS cate ON st.store_id = cate.store_id \
                                     WHERE usfa.username = ?', [username])
     await myDB.end()
     if (result.length == 0) return null
     return result
 }
+
+// Get all food item of a store
+// Parameter: String storeID
+// Result: JSON Array (Each JSON Object will have lots of keys: food_id, name, description,...) | Null (This store doesn't have food list now)
+repoMySQL.getFoodListOfStore = async (storeID) => {
+    let result = await myDB.query('SELECT foo.* FROM store_menu AS stm INNER JOIN food_item AS foo ON stm.food_id = foo.food_id WHERE stm.store_id = ?', [storeID])
+    await myDB.end()
+    if (result.length == 0) return null
+    return result
+}
+
+// Get all photo of a store
+// Parameter: String storeID
+// Result: JSON Array (Each JSON Object will have lots of keys: phot_id, caption, label) | Null (This store doesn't have photo list now)
+repoMySQL.getPhotoListOfStore = async (storeID) => {
+    let result = await myDB.query( 'SELECT ph.* \
+                                    FROM store AS st INNER JOIN photo AS ph ON st.store_id = ph.store_id \
+                                    WHERE st.store_id = ?', [storeID])
+    await myDB.end()
+    if (result.length == 0) return null
+    return result
+}
+
+// Get all review of a store
+// Parameter: String storeID
+// Result: JSON Array (Each JSON Object will have lots of keys: review_id, username, stars,...) | Null (This store doesn't have review list now)
+repoMySQL.getReviewListOfStore = async (storeID) => {
+    let result = await myDB.query( 'SELECT rev.* \
+                                    FROM store AS st INNER JOIN review AS rev ON st.store_id = rev.store_id \
+                                    WHERE st.store_id = ? FOR SHARE', [storeID])
+    await myDB.end()
+    if (result.length == 0) return null
+    return result
+}
+
+// Get store info based on storeID
+// Parameter: String storeID
+// Result: JSON Object with entire info of store | Null
+repoMySQL.getStoreInfo = async (storeID) => {
+    let result = await myDB.query( 'SELECT st.*, ho.hour, cate.category \
+                                    FROM \
+                                        store AS st INNER JOIN category AS cate ON st.store_id = cate.store_id \
+                                        INNER JOIN hour AS ho ON st.store_id = ho.store_id \
+                                    WHERE st.store_id = ? FOR SHARE', [storeID])
+    await myDB.end()
+    if (result.length == 0) return null
+    return result[0]
+}
+
+// Checking this storeID is in my favorite list or not
+// Parameter: String token, String storeID
+// Result: "1" (True) | "0" (False)
+repoMySQL.isFavStoreID = async (username, storeID) => {
+    let result = await myDB.query('SELECT IF (EXISTS (SELECT * FROM user_favorite AS usfa WHERE usfa.store_id = ? AND usfa.username = ?), 1, 0) AS isFavStore', [storeID, username])
+    await myDB.end()
+    return result[0]
+}
+
 
 
 

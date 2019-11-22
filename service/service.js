@@ -142,8 +142,8 @@ service.updateReviewReaction = async (username, storeID, reactType) => {
         return false
     }
 
-    let result = await repoMySQL.updateReviewReaction(username, storeID, reactType)
-    return result
+    await repoMySQL.updateReviewReaction(username, storeID, reactType)
+    return true
 }
 
 // Get raw concern list
@@ -195,6 +195,40 @@ service.getMyFavStoreList = async (username) => {
     return await repoMySQL.getMyFavStoreList(username)
 }
 
+// Get all food item of a store
+// Parameter: String storeID
+// Result: JSON Array (Each JSON Object will have lots of keys: food_id, name, description,...) | Null (This store doesn't have food list now)
+service.getFoodListOfStore = async (storeID) => {
+    return await repoMySQL.getFoodListOfStore(storeID)
+}
+
+// Get all photo of a store
+// Parameter: String storeID
+// Result: JSON Array (Each JSON Object will have lots of keys: phot_id, caption, label) | Null (This store doesn't have photo list now)
+service.getPhotoListOfStore = async (storeID) => {
+    return await repoMySQL.getPhotoListOfStore(storeID)
+}
+
+// Get all review of a store
+// Parameter: String storeID
+// Result: JSON Array (Each JSON Object will have lots of keys: review_id, username, stars,...) | Null (This store doesn't have review list now)
+service.getReviewListOfStore = async (storeID) => {
+    return await repoMySQL.getReviewListOfStore(storeID)
+}
+
+// Get store info based on storeID
+// Parameter: String storeID
+// Result: JSON Object with entire info of store | Null
+service.getStoreInfo = async (storeID) => {
+    return await repoMySQL.getStoreInfo(storeID)
+}
+
+// Checking this storeID is in my favorite list or not
+// Parameter: String token, String storeID
+// Result: "1" (True) | "0" (False)
+service.isFavStoreID = async (username, storeID) => {
+    return await repoMySQL.isFavStoreID(username, storeID)
+}
 
 
 
