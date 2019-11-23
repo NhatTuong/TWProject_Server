@@ -59,6 +59,36 @@ service.hashPassword = (rawPass) => {
     return bcrypt.hashSync(rawPass, salt);
 }
 
+// Get distance between two latlong
+// Parameter: String LatA, String LngA, String LatB, String LngB
+// Result: distance in km
+// Reference: https://www.geodatasource.com/developers/javascript
+service.getDistanceTwoLatLng = (LatA, LngA, LatB, LngB) => {
+    if ((LatA == LatB) && (LngA == LngB)) {
+		return 0;
+	}
+    
+    LatA = parseFloat(LatA)
+    LatB = parseFloat(LatB)
+    LngA = parseFloat(LngA)
+    LngB = parseFloat(LngB)
+
+    var radlatA = Math.PI * LatA/180;
+    var radlatB = Math.PI * LatB/180;
+    var theta = LngA - LngB;
+    var radtheta = Math.PI * theta/180;
+    var dist = Math.sin(radlatA) * Math.sin(radlatB) + Math.cos(radlatA) * Math.cos(radlatB) * Math.cos(radtheta);
+    if (dist > 1) {
+        dist = 1;
+    }
+    dist = Math.acos(dist);
+    dist = dist * 180/Math.PI;
+    dist = dist * 60 * 1.1515;
+    dist = dist * 1.609344; // Result will be in km
+
+    return dist;
+}
+
 /* --------------------------------------------------------------
                         MONGODB FUNCTIONS
    -------------------------------------------------------------- */
