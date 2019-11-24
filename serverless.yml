@@ -66,6 +66,15 @@ functions:
           path: /store/food
           method: get
       - http:
+          path: /search
+          method: get
+      - http:
+          path: /banner
+          method: get
+      - http:
+          path: /suggest/store
+          method: get
+      - http:
           path: /twmomo/mysql/query
           method: post
       - http:

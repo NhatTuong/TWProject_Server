@@ -260,6 +260,25 @@ service.isFavStoreID = async (username, storeID) => {
     return await repoMySQL.isFavStoreID(username, storeID)
 }
 
+// Searching following by keyword and return any results
+// Parameter: String keyword
+// Result: Any results | Null
+service.searching = async (keyword) => {
+    keyword = "%" + keyword + "%";
+    return await repoMySQL.searching(keyword)
+}
+
+// Get all banner information
+// Result: JSON Array (Each JSON Object is relavant to each banner info) | Null
+service.getAllBannerInfo = async () => {
+    return await repoMySQL.getAllBannerInfo()
+}
+
+// Get suggestive store list
+// Result: JSON Array | Null
+service.getSuggestStoreList = async () => {
+    return await repoMySQL.getSuggestStoreList()
+}
 
 
 
@@ -272,6 +291,11 @@ service.isFavStoreID = async (username, storeID) => {
 
 
 
+
+
+
+
+// -----------------------------------------------
 // Special query for manipulating MYSQL database
 // Parameter: String sql
 service.queryMySQL = async (sql) => {

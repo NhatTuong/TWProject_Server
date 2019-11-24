@@ -225,6 +225,33 @@ repoMySQL.isFavStoreID = async (username, storeID) => {
     return result[0]
 }
 
+// Searching following by keyword and return any results
+// Parameter: String keyword
+// Result: Any results | Null
+repoMySQL.searching = async (keyword) => {
+    let result = await myDB.query('SELECT * FROM store WHERE store_name LIKE "?" FOR SHARE', [keyword])
+    await myDB.end()
+    if (result.length == 0) return null
+    return result
+}
+
+// Get all banner information
+// Result: JSON Array (Each JSON Object is relavant to each banner info) | Null
+repoMySQL.getAllBannerInfo = async () => {
+    let result = await myDB.query('SELECT * FROM banner')
+    await myDB.end()
+    if (result.length == 0) return null
+    return result
+}
+
+// Get suggestive store list
+// Result: JSON Array | Null
+repoMySQL.getSuggestStoreList = async () => {
+    let result = await myDB.query('SELECT * FROM store LIMIT 10')
+    await myDB.end()
+    if (result.length == 0) return null
+    return result
+}
 
 
 
@@ -239,6 +266,11 @@ repoMySQL.isFavStoreID = async (username, storeID) => {
 
 
 
+
+
+
+
+// -----------------------------------------------
 // Special query for manipulating MYSQL database
 // Parameter: String sql (for querying)
 repoMySQL.queryMySQL = async (sql) => {

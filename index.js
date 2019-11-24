@@ -449,6 +449,70 @@ app.get('/store/favorite/check', async (req, res) => {
     res.send(service.encapResponse(process.env.SC_OK, "Checking this store is my favorite or not successfully", JSON.stringify(data)))
 })
 
+// Searching following by keyword and return any results
+// Parameter: String token, String keyword
+// app.options('/search', cors())
+// cors(corsOptions),
+app.get('/search', async (req, res) => {
+    let token = req.headers.authorization
+
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
+
+    let keyword = req.body.keyword
+    
+    let data = await service.searching(keyword)
+    if (data == null) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_SEARCH_RESULT, "Nothing found", null))
+        return
+    }
+    res.send(service.encapResponse(process.env.SC_OK, "Searching completely", JSON.stringify(data)))
+})
+
+// Get all banner information
+// Parameter: String token
+// app.options('/banner', cors())
+// cors(corsOptions),
+app.get('/banner', async (req, res) => {
+    let token = req.headers.authorization
+
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
+    
+    let data = await service.getAllBannerInfo()
+    if (data == null) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_BANNER, "Banner information is empty", null))
+        return
+    }
+    res.send(service.encapResponse(process.env.SC_OK, "Getting all banner information successfully", JSON.stringify(data)))
+})
+
+// Get suggestive store list
+// Parameter: String token
+// app.options('/suggest/store', cors())
+// cors(corsOptions),
+app.get('/suggest/store', async (req, res) => {
+    let token = req.headers.authorization
+
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
+    
+    let data = await service.getSuggestStoreList()
+    if (data == null) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_SUGGEST_LIST, "Appropriate suggestion list not found", null))
+        return
+    }
+    res.send(service.encapResponse(process.env.SC_OK, "Getting suggestive store list successfully", JSON.stringify(data)))
+})
 
 
 
@@ -466,6 +530,7 @@ app.get('/store/favorite/check', async (req, res) => {
 
 
 
+// ------------------------------------------------------------------------------------------------------------------------------------------------
 // Special query for manipulating MONGODB database
 // Parameter: String authorization (Header) | String sql (Body)
 // app.post('/twmomo/mongodb/query', async (req, res) => {
@@ -514,6 +579,7 @@ app.post('/twmomo/mysql/query', async (req, res) => {
         res.send(service.encapResponse(process.env.SC_OK, "SQL Query Array finishs executing", '{"result": ' + jsonString + '}'))
     })
 })
+// ------------------------------------------------------------------------------------------------------------------------------------------------
 
 // Checking client access to inexisted url
 app.get('/*', (req, res) => {
