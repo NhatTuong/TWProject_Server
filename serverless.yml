@@ -57,13 +57,10 @@ functions:
           path: /store/favorite/check
           method: get
       - http:
-          path: /store/review
-          method: get
-      - http:
-          path: /store/photo
-          method: get
-      - http:
           path: /store/food
+          method: get
+      - http:
+          path: /store/review
           method: get
       - http:
           path: /search
@@ -73,6 +70,9 @@ functions:
           method: get
       - http:
           path: /suggest/store
+          method: get
+      - http:
+          path: /distance
           method: get
       - http:
           path: /twmomo/mysql/query

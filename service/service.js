@@ -232,13 +232,6 @@ service.getFoodListOfStore = async (storeID) => {
     return await repoMySQL.getFoodListOfStore(storeID)
 }
 
-// Get all photo of a store
-// Parameter: String storeID
-// Result: JSON Array (Each JSON Object will have lots of keys: phot_id, caption, label) | Null (This store doesn't have photo list now)
-service.getPhotoListOfStore = async (storeID) => {
-    return await repoMySQL.getPhotoListOfStore(storeID)
-}
-
 // Get all review of a store
 // Parameter: String storeID
 // Result: JSON Array (Each JSON Object will have lots of keys: review_id, username, stars,...) | Null (This store doesn't have review list now)

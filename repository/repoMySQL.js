@@ -178,18 +178,6 @@ repoMySQL.getFoodListOfStore = async (storeID) => {
     return result
 }
 
-// Get all photo of a store
-// Parameter: String storeID
-// Result: JSON Array (Each JSON Object will have lots of keys: phot_id, caption, label) | Null (This store doesn't have photo list now)
-repoMySQL.getPhotoListOfStore = async (storeID) => {
-    let result = await myDB.query( 'SELECT ph.* \
-                                    FROM store AS st INNER JOIN photo AS ph ON st.store_id = ph.store_id \
-                                    WHERE st.store_id = ?', [storeID])
-    await myDB.end()
-    if (result.length == 0) return null
-    return result
-}
-
 // Get all review of a store
 // Parameter: String storeID
 // Result: JSON Array (Each JSON Object will have lots of keys: review_id, username, stars,...) | Null (This store doesn't have review list now)

@@ -347,7 +347,11 @@ app.get('/store/food', async (req, res) => {
         return
     }
 
-    let storeID = req.body.storeID
+    let storeID = req.query.storeID
+    if (storeID == null) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <storeID> mustn't be null", null))
+        return
+    }
 
     let data = await service.getFoodListOfStore(storeID)
     if (data == null) {
@@ -355,30 +359,6 @@ app.get('/store/food', async (req, res) => {
         return
     }
     res.send(service.encapResponse(process.env.SC_OK, "Getting food information of this store successfully", JSON.stringify(data)))
-
-})
-
-// Get all photo of a store
-// Parameter: String token, String storeID
-// app.options('/store/photo', cors())
-// cors(corsOptions),
-app.get('/store/photo', async (req, res) => {
-    let token = req.headers.authorization
-
-    let verifyToken = service.verifyJWT(token)
-    if (!verifyToken) {
-        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
-        return
-    }
-
-    let storeID = req.body.storeID
-
-    let data = await service.getPhotoListOfStore(storeID)
-    if (data == null) {
-        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_PHOTO_LIST, "Photo list of this store is empty", null))
-        return
-    }
-    res.send(service.encapResponse(process.env.SC_OK, "Getting photo information of this store successfully", JSON.stringify(data)))
 
 })
 
@@ -395,7 +375,11 @@ app.get('/store/review', async (req, res) => {
         return
     }
 
-    let storeID = req.body.storeID
+    let storeID = req.query.storeID
+    if (storeID == null) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <storeID> mustn't be null", null))
+        return
+    }
 
     let data = await service.getReviewListOfStore(storeID)
     if (data == null) {
@@ -418,7 +402,11 @@ app.get('/store', async (req, res) => {
         return
     }
 
-    let storeID = req.body.storeID
+    let storeID = req.query.storeID
+    if (storeID == null) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <storeID> mustn't be null", null))
+        return
+    }
 
     let data = await service.getStoreInfo(storeID)
     if (data == null) {
@@ -442,8 +430,12 @@ app.get('/store/favorite/check', async (req, res) => {
         return
     }
 
-    let storeID = req.body.storeID
     let username = verifyToken.username
+    let storeID = req.query.storeID
+    if (storeID == null) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <storeID> mustn't be null", null))
+        return
+    }
 
     let data = await service.isFavStoreID(username, storeID)
     res.send(service.encapResponse(process.env.SC_OK, "Checking this store is my favorite or not successfully", JSON.stringify(data)))
@@ -513,6 +505,48 @@ app.get('/suggest/store', async (req, res) => {
     }
     res.send(service.encapResponse(process.env.SC_OK, "Getting suggestive store list successfully", JSON.stringify(data)))
 })
+
+// Get two points and compute distance (km) between them
+// Parameter: String token
+// app.options('/distance', cors())
+// cors(corsOptions),
+app.get('/distance', (req, res) => {
+    let token = req.headers.authorization
+
+    let verifyToken = service.verifyJWT(token)
+    if (!verifyToken) {
+        res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
+    
+    let latA = req.query.latA
+    let lngA = req.query.lngA
+    let latB = req.query.latB
+    let lngB = req.query.lngB
+
+    if (latA == null || lngA == null || latB == null || lngB == null) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <latA, lngA, latB, lngB> mustn't be null", null))
+        return
+    }
+
+    if (latA == 0 || lngA == 0 || latB == 0 || lngB == 0) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <latA, lngA, latB, lngB> mustn't have value 0", null))
+        return
+    }
+
+    let distance = service.getDistanceTwoLatLng(latA, lngA, latB, lngB)
+    res.send(service.encapResponse(process.env.SC_OK, "Computing distance (km) between two points successfully", '{"distance": ' + distance + '}'))
+})
+
+
+
+
+
+
+
+
+
+
 
 
 
