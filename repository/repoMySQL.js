@@ -42,7 +42,7 @@ repoMySQL.getProfileInfo = async (username) => {
 // Parameter: username, storeID
 // Result: Review | Null
 repoMySQL.getReviewByUsernameAndStoreID = async (username, storeID) => {
-    let review = await myDB.query('SELECT * FROM review WHERE username = ? AND store_id = ?', [username, storeID])
+    let review = await myDB.query('SELECT * FROM review WHERE username = ? AND store_id = ? FOR SHARE', [username, storeID])
     await myDB.end()
     if (review.length == 0) return null
     return review[0]
@@ -89,7 +89,7 @@ repoMySQL.updateReviewReaction = async (username, storeID, reactType) => {
 // Get raw concern list
 // Result: JSON Array (Each JSON Object will have two keys: concern_id, label) | Null (DB doesn't have concern list)
 repoMySQL.getRawConcernList = async () => {
-    let result = await myDB.query('SELECT * FROM concern')
+    let result = await myDB.query('SELECT * FROM concern FOR SHARE')
     await myDB.end()
     if (result.length == 0) return null
     return result
@@ -157,11 +157,8 @@ repoMySQL.removeMyFavStore = async (username, storeID) => {
 // Parameter: String username
 // Result: JSON Array (Each JSON Object will have lots of keys: store_id, service_id,...) | Null (I don't have favorite store list now)
 repoMySQL.getMyFavStoreList = async (username) => {
-    let result = await myDB.query( 'SELECT st.*, ho.hour, cate.category \
-                                    FROM \
-                                        user_favorite AS usfa INNER JOIN store AS st ON usfa.store_id = st.store_id \
-                                        INNER JOIN hour AS ho ON st.store_id = ho.store_id \
-                                        INNER JOIN category AS cate ON st.store_id = cate.store_id \
+    let result = await myDB.query( 'SELECT st.* \
+                                    FROM user_favorite AS usfa INNER JOIN store AS st ON usfa.store_id = st.store_id \
                                     WHERE usfa.username = ?', [username])
     await myDB.end()
     if (result.length == 0) return null
@@ -172,7 +169,7 @@ repoMySQL.getMyFavStoreList = async (username) => {
 // Parameter: String storeID
 // Result: JSON Array (Each JSON Object will have lots of keys: food_id, name, description,...) | Null (This store doesn't have food list now)
 repoMySQL.getFoodListOfStore = async (storeID) => {
-    let result = await myDB.query('SELECT foo.* FROM store_menu AS stm INNER JOIN food_item AS foo ON stm.food_id = foo.food_id WHERE stm.store_id = ?', [storeID])
+    let result = await myDB.query('SELECT foo.* FROM food_item AS foo WHERE foo.store_id = ? FOR SHARE', [storeID])
     await myDB.end()
     if (result.length == 0) return null
     return result
@@ -194,11 +191,7 @@ repoMySQL.getReviewListOfStore = async (storeID) => {
 // Parameter: String storeID
 // Result: JSON Object with entire info of store | Null
 repoMySQL.getStoreInfo = async (storeID) => {
-    let result = await myDB.query( 'SELECT st.*, ho.hour, cate.category \
-                                    FROM \
-                                        store AS st INNER JOIN category AS cate ON st.store_id = cate.store_id \
-                                        INNER JOIN hour AS ho ON st.store_id = ho.store_id \
-                                    WHERE st.store_id = ? FOR SHARE', [storeID])
+    let result = await myDB.query( 'SELECT * FROM store WHERE store_id = ? FOR SHARE', [storeID])                                    
     await myDB.end()
     if (result.length == 0) return null
     return result[0]
@@ -208,7 +201,7 @@ repoMySQL.getStoreInfo = async (storeID) => {
 // Parameter: String token, String storeID
 // Result: "1" (True) | "0" (False)
 repoMySQL.isFavStoreID = async (username, storeID) => {
-    let result = await myDB.query('SELECT IF (EXISTS (SELECT * FROM user_favorite AS usfa WHERE usfa.store_id = ? AND usfa.username = ?), 1, 0) AS isFavStore', [storeID, username])
+    let result = await myDB.query('SELECT IF (EXISTS (SELECT * FROM user_favorite AS usfa WHERE usfa.store_id = ? AND usfa.username = ? FOR SHARE), 1, 0) AS isFavStore', [storeID, username])
     await myDB.end()
     return result[0]
 }
@@ -226,7 +219,7 @@ repoMySQL.searching = async (keyword) => {
 // Get all banner information
 // Result: JSON Array (Each JSON Object is relavant to each banner info) | Null
 repoMySQL.getAllBannerInfo = async () => {
-    let result = await myDB.query('SELECT * FROM banner')
+    let result = await myDB.query('SELECT * FROM banner FOR SHARE')
     await myDB.end()
     if (result.length == 0) return null
     return result
@@ -235,7 +228,7 @@ repoMySQL.getAllBannerInfo = async () => {
 // Get suggestive store list
 // Result: JSON Array | Null
 repoMySQL.getSuggestStoreList = async () => {
-    let result = await myDB.query('SELECT * FROM store LIMIT 10')
+    let result = await myDB.query('SELECT * FROM store LIMIT 10 FOR SHARE')
     await myDB.end()
     if (result.length == 0) return null
     return result
