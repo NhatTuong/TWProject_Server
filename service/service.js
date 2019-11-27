@@ -257,7 +257,6 @@ service.isFavStoreID = async (username, storeID) => {
 // Parameter: String keyword
 // Result: Any results | Null
 service.searching = async (keyword) => {
-    keyword = "%" + keyword + "%";
     return await repoMySQL.searching(keyword)
 }
 
@@ -268,9 +267,10 @@ service.getAllBannerInfo = async () => {
 }
 
 // Get suggestive store list
+// Parameter: String page
 // Result: JSON Array | Null
-service.getSuggestStoreList = async () => {
-    return await repoMySQL.getSuggestStoreList()
+service.getSuggestStoreList = async (page) => {
+    return await repoMySQL.getSuggestStoreList(page)
 }
 
 

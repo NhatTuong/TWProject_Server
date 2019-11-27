@@ -348,7 +348,7 @@ app.get('/store/food', async (req, res) => {
     }
 
     let storeID = req.query.storeID
-    if (storeID == null) {
+    if (storeID == null || storeID.length == 0) {
         res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <storeID> mustn't be null", null))
         return
     }
@@ -376,7 +376,7 @@ app.get('/store/review', async (req, res) => {
     }
 
     let storeID = req.query.storeID
-    if (storeID == null) {
+    if (storeID == null || storeID.length == 0) {
         res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <storeID> mustn't be null", null))
         return
     }
@@ -403,7 +403,7 @@ app.get('/store', async (req, res) => {
     }
 
     let storeID = req.query.storeID
-    if (storeID == null) {
+    if (storeID == null || storeID.length == 0) {
         res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <storeID> mustn't be null", null))
         return
     }
@@ -432,7 +432,7 @@ app.get('/store/favorite/check', async (req, res) => {
 
     let username = verifyToken.username
     let storeID = req.query.storeID
-    if (storeID == null) {
+    if (storeID == null || storeID.length == 0) {
         res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <storeID> mustn't be null", null))
         return
     }
@@ -454,7 +454,11 @@ app.get('/search', async (req, res) => {
         return
     }
 
-    let keyword = req.body.keyword
+    let keyword = req.query.keyword
+    if (keyword == null || keyword.length == 0) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <keyword> mustn't be null", null))
+        return
+    }
     
     let data = await service.searching(keyword)
     if (data == null) {
@@ -498,7 +502,13 @@ app.get('/suggest/store', async (req, res) => {
         return
     }
     
-    let data = await service.getSuggestStoreList()
+    let page = req.query.page
+    if (page == null || page.length == 0 || page < 1) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <page> mustn't be null or smaller than 1", null))
+        return
+    }
+
+    let data = await service.getSuggestStoreList(page)
     if (data == null) {
         res.send(service.encapResponse(process.env.SC_ERR_EMPTY_SUGGEST_LIST, "Appropriate suggestion list not found", null))
         return
@@ -524,7 +534,8 @@ app.get('/distance', (req, res) => {
     let latB = req.query.latB
     let lngB = req.query.lngB
 
-    if (latA == null || lngA == null || latB == null || lngB == null) {
+    if (latA == null || lngA == null || latB == null || lngB == null ||
+        latA.length == 0 || lngA.length == 0 || latB.length == 0 || lngB.length == 0) {
         res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <latA, lngA, latB, lngB> mustn't be null", null))
         return
     }

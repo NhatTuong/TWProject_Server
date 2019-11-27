@@ -210,7 +210,8 @@ repoMySQL.isFavStoreID = async (username, storeID) => {
 // Parameter: String keyword
 // Result: Any results | Null
 repoMySQL.searching = async (keyword) => {
-    let result = await myDB.query('SELECT * FROM store WHERE store_name LIKE "?" FOR SHARE', [keyword])
+    let sql = "SELECT * FROM store WHERE store_name LIKE '%" + keyword + "%' FOR SHARE"
+    let result = await myDB.query(sql)
     await myDB.end()
     if (result.length == 0) return null
     return result
@@ -226,9 +227,12 @@ repoMySQL.getAllBannerInfo = async () => {
 }
 
 // Get suggestive store list
+// Parameter: String page
 // Result: JSON Array | Null
-repoMySQL.getSuggestStoreList = async () => {
-    let result = await myDB.query('SELECT * FROM store LIMIT 10 FOR SHARE')
+repoMySQL.getSuggestStoreList = async (page) => {
+    let limit = 15
+    let offset = (page - 1) * limit
+    let result = await myDB.query('SELECT * FROM store LIMIT ?, ? FOR SHARE', [offset, limit])
     await myDB.end()
     if (result.length == 0) return null
     return result
