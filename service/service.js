@@ -254,10 +254,21 @@ service.isFavStoreID = async (username, storeID) => {
 }
 
 // Searching following by keyword and return any results
-// Parameter: String keyword
+// Parameter: String keyword, String lat, String lng
 // Result: Any results | Null
-service.searching = async (keyword) => {
-    return await repoMySQL.searching(keyword)
+service.searching = async (keyword, lat, lng) => {
+    let result = await repoMySQL.searching(keyword)
+    if (result == null) return null
+
+    for (let i=0; i<result.length; ++i) {
+        let distance = 0
+        if (lat != 0 && lng != 0) {
+            distance = service.getDistanceTwoLatLng(lat, lng, result[i]['store_lat'], result[i]['store_long'])
+        }
+        result[i]['distance'] = distance
+    }
+
+    return result
 }
 
 // Get all banner information
@@ -267,10 +278,21 @@ service.getAllBannerInfo = async () => {
 }
 
 // Get suggestive store list
-// Parameter: String page
+// Parameter: String page, String lat, String lng
 // Result: JSON Array | Null
-service.getSuggestStoreList = async (page) => {
-    return await repoMySQL.getSuggestStoreList(page)
+service.getSuggestStoreList = async (page, lat, lng) => {
+    let result = await repoMySQL.getSuggestStoreList(page)
+    if (result == null) return null
+
+    for (let i=0; i<result.length; ++i) {
+        let distance = 0
+        if (lat != 0 && lng != 0) {
+            distance = service.getDistanceTwoLatLng(lat, lng, result[i]['store_lat'], result[i]['store_long'])
+        }
+        result[i]['distance'] = distance
+    }
+
+    return result
 }
 
 

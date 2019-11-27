@@ -459,8 +459,15 @@ app.get('/search', async (req, res) => {
         res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <keyword> mustn't be null", null))
         return
     }
+
+    let lat = req.query.lat
+    let lng = req.query.lng
+    if (lat == null || lng == null || lat.length == 0 || lng.length == 0) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <lat, lng> mustn't be null", null))
+        return
+    }
     
-    let data = await service.searching(keyword)
+    let data = await service.searching(keyword, lat, lng)
     if (data == null) {
         res.send(service.encapResponse(process.env.SC_ERR_EMPTY_SEARCH_RESULT, "Nothing found", null))
         return
@@ -508,7 +515,14 @@ app.get('/suggest/store', async (req, res) => {
         return
     }
 
-    let data = await service.getSuggestStoreList(page)
+    let lat = req.query.lat
+    let lng = req.query.lng
+    if (lat == null || lng == null || lat.length == 0 || lng.length == 0) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <lat, lng> mustn't be null", null))
+        return
+    }
+
+    let data = await service.getSuggestStoreList(page, lat, lng)
     if (data == null) {
         res.send(service.encapResponse(process.env.SC_ERR_EMPTY_SUGGEST_LIST, "Appropriate suggestion list not found", null))
         return
