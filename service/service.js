@@ -254,20 +254,22 @@ service.isFavStoreID = async (username, storeID) => {
 }
 
 // Searching following by keyword and return any results
-// Parameter: String keyword, String lat, String lng
+// Parameter: String type, String username, String keyword, String lat, String lng, String page
 // Result: Any results | Null
-service.searching = async (keyword, lat, lng) => {
-    let result = await repoMySQL.searching(keyword)
-    if (result == null) return null
+service.searching = async (type, username, lat, lng, keyword, page) => {
+    let result = null
+    let limit = 5
+    let offset = (page - 1) * limit
 
-    for (let i=0; i<result.length; ++i) {
-        let distance = 0
-        if (lat != 0 && lng != 0) {
-            distance = service.getDistanceTwoLatLng(lat, lng, result[i]['store_lat'], result[i]['store_long'])
-        }
-        result[i]['distance'] = distance
+    if (type == "store") {
+        result = await repoMySQL.searchStore(username, lat, lng, keyword, offset, limit)
     }
-
+    else  
+        if (type == "food") {
+            result = await repoMySQL.searchFood(username, lat, lng, keyword, offset, limit)
+        }
+        
+    if (result == null) return null
     return result
 }
 
@@ -277,19 +279,32 @@ service.getAllBannerInfo = async () => {
     return await repoMySQL.getAllBannerInfo()
 }
 
-// Get suggestive store list
-// Parameter: String page, String lat, String lng
+// Get suggestive list
+// Parameter: String type, String username, String page, String lat, String lng
 // Result: JSON Array | Null
-service.getSuggestStoreList = async (page, lat, lng) => {
-    let result = await repoMySQL.getSuggestStoreList(page)
-    if (result == null) return null
+service.getSuggestList = async (type, username, page, lat, lng) => {
+    let result = null
+    let limit = 5
+    let offset = (page - 1) * limit
 
-    for (let i=0; i<result.length; ++i) {
-        let distance = 0
-        if (lat != 0 && lng != 0) {
-            distance = service.getDistanceTwoLatLng(lat, lng, result[i]['store_lat'], result[i]['store_long'])
+    if (type == "store") {
+        result = await repoMySQL.getSuggestStoreList(username, offset, limit)
+    }
+    else  
+        if (type == "food") {
+            result = await repoMySQL.getSuggestFoodList(username, offset, limit)
         }
-        result[i]['distance'] = distance
+        
+    if (result == null) return null
+    
+    if (type == "store") {
+        for (let i=0; i<result.length; ++i) {
+            let distance = 0
+            if (lat != 0 && lng != 0) {
+                distance = service.getDistanceTwoLatLng(lat, lng, result[i]['store_lat'], result[i]['store_long'])
+            }
+            result[i]['distance'] = distance
+        }
     }
 
     return result

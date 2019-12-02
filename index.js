@@ -442,7 +442,8 @@ app.get('/store/favorite/check', async (req, res) => {
 })
 
 // Searching following by keyword and return any results
-// Parameter: String token, String keyword
+// Parameter: String token
+// Query: String type, String keyword, String lat, String lng, String page
 // app.options('/search', cors())
 // cors(corsOptions),
 app.get('/search', async (req, res) => {
@@ -451,6 +452,14 @@ app.get('/search', async (req, res) => {
     let verifyToken = service.verifyJWT(token)
     if (!verifyToken) {
         res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
+        return
+    }
+
+    let username = verifyToken.username
+
+    let type = req.query.type
+    if (type == null || type.length == 0 || (type != "store" && type != "food")) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <type> mustn't be null or equal 'store' or 'food'", null))
         return
     }
 
@@ -466,8 +475,14 @@ app.get('/search', async (req, res) => {
         res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <lat, lng> mustn't be null", null))
         return
     }
+
+    let page = req.query.page
+    if (page == null || page.length == 0 || page < 1) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <page> mustn't be null or smaller than 1", null))
+        return
+    }
     
-    let data = await service.searching(keyword, lat, lng)
+    let data = await service.searching(type, username, lat, lng, keyword, page)
     if (data == null) {
         res.send(service.encapResponse(process.env.SC_ERR_EMPTY_SEARCH_RESULT, "Nothing found", null))
         return
@@ -496,11 +511,12 @@ app.get('/banner', async (req, res) => {
     res.send(service.encapResponse(process.env.SC_OK, "Getting all banner information successfully", JSON.stringify(data)))
 })
 
-// Get suggestive store list
+// Get suggestive list
 // Parameter: String token
-// app.options('/suggest/store', cors())
+// Query: String type, String page, String lat, String lng
+// app.options('/suggest', cors())
 // cors(corsOptions),
-app.get('/suggest/store', async (req, res) => {
+app.get('/suggest', async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -508,7 +524,15 @@ app.get('/suggest/store', async (req, res) => {
         res.send(service.encapResponse(process.env.SC_ERR_INVALID_JWT, "Invalid JWT", null))
         return
     }
+
+    let username = verifyToken.username
     
+    let type = req.query.type
+    if (type == null || type.length == 0 || (type != "store" && type != "food")) {
+        res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <type> mustn't be null or equal 'store' or 'food'", null))
+        return
+    }
+
     let page = req.query.page
     if (page == null || page.length == 0 || page < 1) {
         res.send(service.encapResponse(process.env.SC_ERR_EMPTY_QUERY_URL, "Query on URL with <page> mustn't be null or smaller than 1", null))
@@ -522,12 +546,12 @@ app.get('/suggest/store', async (req, res) => {
         return
     }
 
-    let data = await service.getSuggestStoreList(page, lat, lng)
+    let data = await service.getSuggestList(type, username, page, lat, lng)
     if (data == null) {
         res.send(service.encapResponse(process.env.SC_ERR_EMPTY_SUGGEST_LIST, "Appropriate suggestion list not found", null))
         return
     }
-    res.send(service.encapResponse(process.env.SC_OK, "Getting suggestive store list successfully", JSON.stringify(data)))
+    res.send(service.encapResponse(process.env.SC_OK, "Getting suggestive list successfully", JSON.stringify(data)))
 })
 
 // Get two points and compute distance (km) between them

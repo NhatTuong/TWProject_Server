@@ -69,7 +69,7 @@ functions:
           path: /banner
           method: get
       - http:
-          path: /suggest/store
+          path: /suggest
           method: get
       - http:
           path: /distance

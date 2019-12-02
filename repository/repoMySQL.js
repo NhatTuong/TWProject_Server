@@ -99,7 +99,7 @@ repoMySQL.getRawConcernList = async () => {
 // Parameter: String username
 // Result: SON Array (Each JSON Object will have two keys: concern_id, label) | Null (I don't have concern list now)
 repoMySQL.getMyConcernList = async (username) => {
-    let result = await myDB.query( 'SELECT co.concern_id, co.label \
+    let result = await myDB.query( 'SELECT co.* \
                                     FROM user_concern AS usco INNER JOIN concern AS co ON usco.concern_id = co.concern_id \
                                     WHERE usco.username = ?', [username])
     await myDB.end()
@@ -206,12 +206,25 @@ repoMySQL.isFavStoreID = async (username, storeID) => {
     return result[0]
 }
 
-// Searching following by keyword and return any results
-// Parameter: String keyword
+// [STORE] Searching following by keyword and return any results
+// Parameter: String username, String lat, String lng, String keyword, Int offset, Int limit
 // Result: Any results | Null
-repoMySQL.searching = async (keyword) => {
-    let sql = "SELECT * FROM store WHERE store_name LIKE '%" + keyword + "%' FOR SHARE"
+repoMySQL.searchStore = async (username, lat, lng, keyword, offset, limit) => {
+    let sql = `CALL store_search_query('${username}', ${lat}, ${lng}, '${keyword}', ${offset}, ${limit})`
     let result = await myDB.query(sql)
+    result = result[0]
+    await myDB.end()
+    if (result.length == 0) return null
+    return result
+}
+
+// [FOOD] Searching following by keyword and return any results
+// Parameter: String username, String lat, String lng, String keyword, Int offset, Int limit
+// Result: Any results | Null
+repoMySQL.searchFood = async (username, lat, lng, keyword, offset, limit) => {
+    let sql = `CALL food_search_query('${username}', ${lat}, ${lng}, '${keyword}', ${offset}, ${limit})`
+    let result = await myDB.query(sql)
+    result = result[0]
     await myDB.end()
     if (result.length == 0) return null
     return result
@@ -227,17 +240,28 @@ repoMySQL.getAllBannerInfo = async () => {
 }
 
 // Get suggestive store list
-// Parameter: String page
+// Parameter: String username, Int offset, Int limit
 // Result: JSON Array | Null
-repoMySQL.getSuggestStoreList = async (page) => {
-    let limit = 15
-    let offset = (page - 1) * limit
-    let result = await myDB.query('SELECT * FROM store LIMIT ?, ? FOR SHARE', [offset, limit])
+repoMySQL.getSuggestStoreList = async (username, offset, limit) => {
+    let sql = `CALL store_recommend_query('${username}', ${offset}, ${limit})`
+    let result = await myDB.query(sql)
+    result = result[0]
     await myDB.end()
     if (result.length == 0) return null
     return result
 }
 
+// Get suggestive food list
+// Parameter: String username, Int offset, Int limit
+// Result: JSON Array | Null
+repoMySQL.getSuggestFoodList = async (username, offset, limit) => {
+    let sql = `CALL food_recommend_query('${username}', ${offset}, ${limit})`
+    let result = await myDB.query(sql)
+    result = result[0]
+    await myDB.end()
+    if (result.length == 0) return null
+    return result
+}
 
 
 
