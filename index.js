@@ -282,7 +282,7 @@ app.post('/store/favorite', async (req, res) => {
     let username = verifyToken.username
     let storeID = req.body.storeID
 
-    if (service.existedMyFavStore(username, storeID)) {
+    if (await service.existedMyFavStore(username, storeID)) {
         res.send(service.encapResponse(process.env.SC_ERR_EXISTED_FAV_STORE, "This favorite store existed in your favorite store list, so cann't add to list anymore", null))
         return
     }
