@@ -50,9 +50,8 @@ let service = require('./service/service');
 
 // Login
 // Parameter: JSON List (String username, String password)
-// app.options('/login', cors())
-// cors(corsOptions),
-app.post('/login',  async (req, res) => {
+app.options('/login', cors())
+app.post('/login', cors(corsOptions), async (req, res) => {
     let username = req.body.username
     let password = req.body.password
 
@@ -67,9 +66,8 @@ app.post('/login',  async (req, res) => {
 
 // Registering new account
 // Parameter: JSON List (String username, String password)
-// app.options('/register', cors())
-// cors(corsOptions),
-app.post('/register', async (req, res) => {
+app.options('/register', cors())
+app.post('/register', cors(corsOptions), async (req, res) => {
     let username = req.body.username
     let password = req.body.password
     
@@ -84,9 +82,8 @@ app.post('/register', async (req, res) => {
 
 // Filling in detail information after registering
 // Parameter: JSON List (String username, String name, String country, String city, Int age, String job, String gender, String salaryRange)
-// app.options('/register/detail', cors())
-// cors(corsOptions),
-app.post('/register/detail', async (req, res) => {
+app.options('/register/detail', cors())
+app.post('/register/detail', cors(corsOptions), async (req, res) => {
     let username = req.body.username
     let name = req.body.name
     let country = req.body.country
@@ -107,9 +104,8 @@ app.post('/register/detail', async (req, res) => {
 
 // Logging information of user (Don't verify JWT)
 // Parameter: JSON List (String username, String datetime, String log)
-// app.options('/logging', cors())
-// cors(corsOptions),
-app.post('/logging', async (req, res) => {
+app.options('/logging', cors())
+app.post('/logging', cors(corsOptions), async (req, res) => {
     let username = req.body.username
     let datetime = req.body.datetime
     let log = req.body.log
@@ -120,9 +116,8 @@ app.post('/logging', async (req, res) => {
 
 // Getting all profile information 
 // Parameter: String token
-// app.options('/profile', cors())
-// cors(corsOptions),
-app.get('/profile', async (req, res) => {
+app.options('/profile', cors())
+app.get('/profile', cors(corsOptions), async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -143,9 +138,8 @@ app.get('/profile', async (req, res) => {
 
 // Get raw concern list
 // Parameter: String token
-// app.options('/concern/rawlist', cors())
-// cors(corsOptions),
-app.get('/concern/rawlist', async (req, res) => {
+app.options('/concern/rawlist', cors())
+app.get('/concern/rawlist', cors(corsOptions), async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -165,9 +159,8 @@ app.get('/concern/rawlist', async (req, res) => {
 
 // Get my concern list
 // Parameter: String token
-// app.options('/concern/mylist', cors())
-// cors(corsOptions),
-app.get('/concern/mylist', async (req, res) => {
+app.options('/concern/mylist', cors())
+app.get('/concern/mylist', cors(corsOptions), async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -189,9 +182,8 @@ app.get('/concern/mylist', async (req, res) => {
 
 // Update my concern list
 // Parameter: String token, Array (String) concernID
-// app.options('/concern/mylist', cors())
-// cors(corsOptions),
-app.post('/concern/mylist', async (req, res) => {
+app.options('/concern/mylist', cors())
+app.post('/concern/mylist', cors(corsOptions), async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -209,9 +201,8 @@ app.post('/concern/mylist', async (req, res) => {
 
 // Review store
 // Parameter: String token, String storeID, String comment, Int stars
-// app.options('/store/review/rating', cors())
-// cors(corsOptions),
-app.post('/store/review/rating', async (req, res) => {
+app.options('/store/review/rating', cors())
+app.post('/store/review/rating', cors(corsOptions), async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -237,9 +228,8 @@ app.post('/store/review/rating', async (req, res) => {
 
 // Reacting to review of a specified user
 // Parameter: String token, String username, String storeID, Int reactType
-// app.options('/store/review/reaction', cors())
-// cors(corsOptions),
-app.post('/store/review/reaction', async (req, res) => {
+app.options('/store/review/reaction', cors())
+app.post('/store/review/reaction', cors(corsOptions), async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -268,9 +258,8 @@ app.post('/store/review/reaction', async (req, res) => {
 
 // Add new store to my favorite store list
 // Parameter: String token, String storeID
-// app.options('/store/favorite', cors())
-// cors(corsOptions),
-app.post('/store/favorite', async (req, res) => {
+app.options('/store/favorite', cors())
+app.post('/store/favorite', cors(corsOptions), async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -293,9 +282,8 @@ app.post('/store/favorite', async (req, res) => {
 
 // Removing store from my favorite store list
 // Parameter: String token, String storeID
-// app.options('/store/favorite', cors())
-// cors(corsOptions),
-app.delete('/store/favorite', async (req, res) => {
+app.options('/store/favorite', cors())
+app.delete('/store/favorite', cors(corsOptions), async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -313,9 +301,8 @@ app.delete('/store/favorite', async (req, res) => {
 
 // Get my favorite store list
 // Parameter: String token
-// app.options('/store/favorite', cors())
-// cors(corsOptions),
-app.get('/store/favorite', async (req, res) => {
+app.options('/store/favorite', cors())
+app.get('/store/favorite', cors(corsOptions), async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -336,9 +323,8 @@ app.get('/store/favorite', async (req, res) => {
 
 // Get all food item of a store
 // Parameter: String token, String storeID
-// app.options('/store/food', cors())
-// cors(corsOptions),
-app.get('/store/food', async (req, res) => {
+app.options('/store/food', cors())
+app.get('/store/food', cors(corsOptions), async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -364,9 +350,8 @@ app.get('/store/food', async (req, res) => {
 
 // Get all review of a store
 // Parameter: String token, String storeID
-// app.options('/store/review', cors())
-// cors(corsOptions),
-app.get('/store/review', async (req, res) => {
+app.options('/store/review', cors())
+app.get('/store/review', cors(corsOptions), async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -391,9 +376,8 @@ app.get('/store/review', async (req, res) => {
 
 // Get store info based on storeID
 // Parameter: String token, String storeID
-// app.options('/store', cors())
-// cors(corsOptions),
-app.get('/store', async (req, res) => {
+app.options('/store', cors())
+app.get('/store', cors(corsOptions), async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -419,9 +403,8 @@ app.get('/store', async (req, res) => {
 // Checking this storeID is in my favorite list or not
 // Parameter: String token, String storeID
 // Result: "1" (True) | "0" (False)
-// app.options('/store/favorite/check', cors())
-// cors(corsOptions),
-app.get('/store/favorite/check', async (req, res) => {
+app.options('/store/favorite/check', cors())
+app.get('/store/favorite/check', cors(corsOptions), async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -444,9 +427,8 @@ app.get('/store/favorite/check', async (req, res) => {
 // Searching following by keyword and return any results
 // Parameter: String token
 // Query: String type, String keyword, String lat, String lng, String page
-// app.options('/search', cors())
-// cors(corsOptions),
-app.get('/search', async (req, res) => {
+app.options('/search', cors())
+app.get('/search', cors(corsOptions), async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -492,9 +474,8 @@ app.get('/search', async (req, res) => {
 
 // Get all banner information
 // Parameter: String token
-// app.options('/banner', cors())
-// cors(corsOptions),
-app.get('/banner', async (req, res) => {
+app.options('/banner', cors())
+app.get('/banner', cors(corsOptions), async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -514,9 +495,8 @@ app.get('/banner', async (req, res) => {
 // Get suggestive list
 // Parameter: String token
 // Query: String type, String page, String lat, String lng
-// app.options('/suggest', cors())
-// cors(corsOptions),
-app.get('/suggest', async (req, res) => {
+app.options('/suggest', cors())
+app.get('/suggest', cors(corsOptions), async (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
@@ -556,9 +536,8 @@ app.get('/suggest', async (req, res) => {
 
 // Get two points and compute distance (km) between them
 // Parameter: String token
-// app.options('/distance', cors())
-// cors(corsOptions),
-app.get('/distance', (req, res) => {
+app.options('/distance', cors())
+app.get('/distance', cors(corsOptions), (req, res) => {
     let token = req.headers.authorization
 
     let verifyToken = service.verifyJWT(token)
