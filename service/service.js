@@ -288,24 +288,12 @@ service.getSuggestList = async (type, username, page, lat, lng) => {
     let offset = (page - 1) * limit
 
     if (type == "store") {
-        result = await repoMySQL.getSuggestStoreList(username, offset, limit)
+        result = await repoMySQL.getSuggestStoreList(username, lat, lng, offset, limit)
     }
     else  
         if (type == "food") {
             result = await repoMySQL.getSuggestFoodList(username, offset, limit)
         }
-        
-    if (result == null) return null
-    
-    if (type == "store") {
-        for (let i=0; i<result.length; ++i) {
-            let distance = 0
-            if (lat != 0 && lng != 0) {
-                distance = service.getDistanceTwoLatLng(lat, lng, result[i]['store_lat'], result[i]['store_long'])
-            }
-            result[i]['distance'] = distance
-        }
-    }
 
     return result
 }

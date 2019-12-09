@@ -240,10 +240,10 @@ repoMySQL.getAllBannerInfo = async () => {
 }
 
 // Get suggestive store list
-// Parameter: String username, Int offset, Int limit
+// Parameter: String username, String lat, String lng, Int offset, Int limit
 // Result: JSON Array | Null
-repoMySQL.getSuggestStoreList = async (username, offset, limit) => {
-    let sql = `CALL store_recommend_query('${username}', ${offset}, ${limit})`
+repoMySQL.getSuggestStoreList = async (username, lat, lng, offset, limit) => {
+    let sql = `CALL store_recommend_query('${username}', ${lat}, ${lng}, ${offset}, ${limit})`
     let result = await myDB.query(sql)
     result = result[0]
     await myDB.end()
