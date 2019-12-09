@@ -587,45 +587,7 @@ app.get('/distance', (req, res) => {
     res.send(service.encapResponse(process.env.SC_OK, "Computing distance (km) between two points successfully", '{"distance": ' + distance + '}'))
 })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ------------------------------------------------------------------------------------------------------------------------------------------------
-// Special query for manipulating MONGODB database
-// Parameter: String authorization (Header) | String sql (Body)
-// app.post('/twmomo/mongodb/query', async (req, res) => {
-//     author = req.headers.authorization
-//     if (author != "GATBB2-DW1AU9S-QNGMCRY-DOO0OONE-TROM-MAT-LEO") {
-//         res.send(service.encapResponse(process.env.SC_ERR_QUERYDB_WRONG_AUTHOR, "Authorization of querying mongodb db is wrong", null))
-//         return
-//     }
-
-//     // More
-// })
-
+// -------------------------------------------------------------------------------------------------------------------------------
 // Special query for manipulating MYSQL database
 // Parameter: String authorization (Header) | Array String sqlArr (Body)
 app.post('/twmomo/mysql/query', async (req, res) => {

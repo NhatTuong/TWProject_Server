@@ -179,9 +179,9 @@ repoMySQL.getFoodListOfStore = async (storeID) => {
 // Parameter: String storeID
 // Result: JSON Array (Each JSON Object will have lots of keys: review_id, username, stars,...) | Null (This store doesn't have review list now)
 repoMySQL.getReviewListOfStore = async (storeID) => {
-    let result = await myDB.query( 'SELECT rev.* \
-                                    FROM store AS st INNER JOIN review AS rev ON st.store_id = rev.store_id \
-                                    WHERE st.store_id = ? FOR SHARE', [storeID])
+    let result = await myDB.query( 'SELECT rev.*, us.name \
+                                    FROM review AS rev INNER JOIN user AS us ON rev.username = us.username \
+                                    WHERE rev.store_id = ? FOR SHARE', [storeID])
     await myDB.end()
     if (result.length == 0) return null
     return result
@@ -263,23 +263,7 @@ repoMySQL.getSuggestFoodList = async (username, offset, limit) => {
     return result
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// -----------------------------------------------
+// ---------------------------------------------------------
 // Special query for manipulating MYSQL database
 // Parameter: String sql (for querying)
 repoMySQL.queryMySQL = async (sql) => {

@@ -310,21 +310,6 @@ service.getSuggestList = async (type, username, page, lat, lng) => {
     return result
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // -----------------------------------------------
 // Special query for manipulating MYSQL database
 // Parameter: String sql
